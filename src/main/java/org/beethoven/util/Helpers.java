@@ -1,5 +1,7 @@
 package org.beethoven.util;
 
+import org.springframework.util.StringUtils;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -22,5 +24,13 @@ public class Helpers {
         }
 
         return sb.toString();
+    }
+
+    public static String buildFuzzySearchParam(String param) {
+        if (StringUtils.hasText(param)) {
+            return "%" + param.trim() + "%";
+        }
+
+        return null;
     }
 }

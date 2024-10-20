@@ -1,4 +1,4 @@
-package org.beethoven.vo;
+package org.beethoven.pojo.vo;
 
 import lombok.Data;
 
@@ -10,7 +10,9 @@ import lombok.Data;
  * @date: 2024-10-10
  */
 
+@Data
 public class MusicVo {
+
     public String link;
 
     public String cover;
