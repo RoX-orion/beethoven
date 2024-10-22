@@ -31,6 +31,10 @@ public class Music {
 
     private int duration;
 
+    private int size;
+
+    private String mime;
+
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 

@@ -1,5 +1,6 @@
 package org.andre.beethoven;
 
+import org.beethoven.util.Helpers;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,5 +19,10 @@ public class FileTest {
     public void fileInfo() {
         File file = new File("C:\\Users\\52828\\Desktop\\rain.mp3");
         System.out.println(file.getName());
+    }
+
+    @Test
+    public void buildOssFileName() {
+        System.out.println(Helpers.buildOssFileName("rain.mp4"));
     }
 }

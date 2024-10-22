@@ -1,6 +1,6 @@
 package org.beethoven.config;
 
-import com.qiniu.storage.Region;
+import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +25,8 @@ public class QiniuConfig {
     @Value("${oss.qiniu.secret-key}")
     private String secretKey;
 
+    private Auth auth;
+
     @Bean
     public UploadManager initUploadManager() {
         com.qiniu.storage.Configuration config = new com.qiniu.storage.Configuration();
@@ -35,6 +37,16 @@ public class QiniuConfig {
 
     @Bean
     public Auth initAuth() {
-        return Auth.create(accessKey, secretKey);
+        auth = Auth.create(accessKey, secretKey);
+
+        return auth;
+    }
+
+    @Bean
+    public BucketManager initBucketManager() {
+        com.qiniu.storage.Configuration config = new com.qiniu.storage.Configuration();
+        config.resumableUploadAPIVersion = com.qiniu.storage.Configuration.ResumableUploadAPIVersion.V2;
+
+        return new BucketManager(auth, config);
     }
 }

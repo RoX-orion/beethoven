@@ -33,4 +33,16 @@ public class Helpers {
 
         return null;
     }
+
+    public static String buildOssFileName(String fileName) {
+        return getRandomString(15) + getFileExtensionName(fileName);
+    }
+
+    public static String getFileExtensionName(String fileName) {
+        int i = fileName.indexOf('.');
+        if (i != -1) {
+            return fileName.substring(i);
+        }
+        return "";
+    }
 }
