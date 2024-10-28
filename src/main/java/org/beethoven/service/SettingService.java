@@ -1,7 +1,7 @@
 package org.beethoven.service;
 
-import org.beethoven.entity.Setting;
 import org.beethoven.mapper.SettingMapper;
+import org.beethoven.pojo.entity.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

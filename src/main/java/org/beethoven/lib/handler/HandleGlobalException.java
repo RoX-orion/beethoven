@@ -1,8 +1,8 @@
 package org.beethoven.lib.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.beethoven.entity.ApiResult;
 import org.beethoven.lib.exception.AuthenticationException;
+import org.beethoven.pojo.entity.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

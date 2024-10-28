@@ -1,4 +1,4 @@
-package org.beethoven.entity;
+package org.beethoven.pojo.entity;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;

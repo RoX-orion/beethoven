@@ -2,7 +2,7 @@ package org.andre.beethoven;
 
 import jakarta.annotation.Resource;
 import org.beethoven.BeethovenApplication;
-import org.beethoven.entity.Setting;
+import org.beethoven.pojo.entity.Setting;
 import org.beethoven.service.SettingService;
 import org.junit.Test;
 import org.junit.runner.RunWith;

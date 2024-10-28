@@ -1,4 +1,4 @@
-package org.beethoven.entity;
+package org.beethoven.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

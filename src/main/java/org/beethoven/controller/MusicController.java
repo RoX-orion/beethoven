@@ -3,7 +3,7 @@ package org.beethoven.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.jdbc.Null;
-import org.beethoven.entity.ApiResult;
+import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

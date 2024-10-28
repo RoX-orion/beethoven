@@ -1,7 +1,7 @@
 package org.beethoven.controller;
 
-import org.beethoven.entity.ApiResult;
-import org.beethoven.entity.Setting;
+import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.entity.Setting;
 import org.beethoven.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

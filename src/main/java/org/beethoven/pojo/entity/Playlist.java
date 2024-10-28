@@ -1,4 +1,4 @@
-package org.beethoven.entity;
+package org.beethoven.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -28,6 +28,8 @@ public class Playlist {
     private String title;
 
     private String introduction;
+
+    private String cover;
 
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;

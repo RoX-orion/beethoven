@@ -2,13 +2,14 @@ package org.beethoven.service;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.beethoven.entity.Playlist;
 import org.beethoven.mapper.PlaylistMapper;
-import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.PlaylistDTO;
+import org.beethoven.pojo.entity.Playlist;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -27,8 +28,9 @@ public class PlaylistService {
     @Resource
     private AuthService authService;
 
-    public PageInfo<PlaylistVo> getPlayList(PlaylistDTO playlistDTO) {
-        return null;
+    public List<PlaylistVo> getPlayList(PlaylistDTO playlistDTO) {
+        int offset = (playlistDTO.getPage() - 1) * playlistDTO.getSize();
+        return playlistMapper.getPlayList(offset, playlistDTO.getSize());
     }
 
     public void addPlaylist(@Valid AddPlaylistDto playlistInfo) {

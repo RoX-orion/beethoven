@@ -1,7 +1,7 @@
 package org.beethoven.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.beethoven.entity.Setting;
+import org.beethoven.pojo.entity.Setting;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.

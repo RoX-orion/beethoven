@@ -20,4 +20,6 @@ public class AddPlaylistDto {
     private String title;
 
     private String introduction;
+
+    private String cover;
 }

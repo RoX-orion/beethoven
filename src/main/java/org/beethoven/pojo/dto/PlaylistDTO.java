@@ -15,5 +15,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class PlaylistDTO extends PageDTO {
 
-    private String playlistName;
+    private String title;
+
+    private String cover;
 }

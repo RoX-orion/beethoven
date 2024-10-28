@@ -19,7 +19,11 @@ public class PlaylistVo {
 
     private String creator;
 
-    private String playlistName;
+    private String title;
+
+    private String cover;
+
+    private int musicCount;
 
     private Date createTime;
 
