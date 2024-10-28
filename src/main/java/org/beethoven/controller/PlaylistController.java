@@ -1,11 +1,14 @@
 package org.beethoven.controller;
 
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.beethoven.entity.ApiResult;
 import org.beethoven.pojo.PageInfo;
+import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.service.PlaylistService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,19 +25,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("playlist")
 public class PlaylistController {
 
-    private final PlaylistService playlistService;
-
-    @Autowired
-    private PlaylistController(
-            final PlaylistService playlistService
-    ) {
-        this.playlistService = playlistService;
-    }
+    @Resource
+    private PlaylistService playlistService;
 
     @RequestMapping(value = "getPlaylist", method = RequestMethod.GET)
     public ApiResult<PageInfo<PlaylistVo>> getPlayList(PlaylistDTO playlistDTO) {
         PageInfo<PlaylistVo> pageInfo = playlistService.getPlayList(playlistDTO);
 
         return ApiResult.ok(pageInfo);
+    }
+
+    @RequestMapping(value = "addPlaylist", method = RequestMethod.POST)
+    public ApiResult<Void> addPlaylist(@RequestBody @Valid AddPlaylistDto playlistInfo) {
+        playlistService.addPlaylist(playlistInfo);
+
+        return ApiResult.ok();
     }
 }

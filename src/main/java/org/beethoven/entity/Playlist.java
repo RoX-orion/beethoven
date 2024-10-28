@@ -25,7 +25,9 @@ public class Playlist {
 
     private Integer creator;
 
-    private String playlistName;
+    private String title;
+
+    private String introduction;
 
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
