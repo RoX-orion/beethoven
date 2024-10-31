@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.beethoven.mapper.MusicMapper;
+import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -127,5 +130,10 @@ public class MusicService {
         } catch (QiniuException e) {
             System.out.println(e.response.getInfo().contains("no such file or directory"));
         }
+    }
+
+    public List<MusicVo> searchMusic(MusicDTO musicDTO) {
+        int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
+        return musicMapper.searchMusic(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
     }
 }

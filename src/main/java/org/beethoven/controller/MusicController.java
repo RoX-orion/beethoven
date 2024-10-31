@@ -2,14 +2,18 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.ibatis.jdbc.Null;
+import jakarta.validation.Valid;
+import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -34,10 +38,17 @@ public class MusicController {
     }
 
     @RequestMapping(value = "fetchMusic", method = RequestMethod.GET)
-    public ApiResult<Null> fetchMusic(HttpServletRequest request,
+    public ApiResult<Void> fetchMusic(HttpServletRequest request,
                                       @RequestParam("hash") String hash) {
         musicService.fetchMusic(request, hash);
 
         return ApiResult.ok();
+    }
+
+    @RequestMapping(value = "searchMusic", method = RequestMethod.GET)
+    public ApiResult<List<MusicVo>> searchMusic(@Valid MusicDTO musicDTO) {
+        List<MusicVo> musicVoList = musicService.searchMusic(musicDTO);
+
+        return ApiResult.ok(musicVoList);
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.beethoven.mapper.MusicMapper">
+    <select id="searchMusic" resultType="org.beethoven.pojo.vo.MusicVo">
+        select *
+        from music
+        where name like #{key}
+           or singer like #{key}
+        limit #{offset}, #{size};
+    </select>
+</mapper>
