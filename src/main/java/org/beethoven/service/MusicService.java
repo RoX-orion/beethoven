@@ -9,13 +9,19 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.beethoven.lib.Constant;
+import org.beethoven.lib.GlobalConfig;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.dto.UploadMusicDTO;
+import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.entity.Music;
+import org.beethoven.pojo.enums.OssProvider;
 import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,6 +50,9 @@ public class MusicService {
     private OkHttpClient httpClient;
 
     @Resource
+    private GlobalConfig globalConfig;
+
+    @Resource
     private UploadManager uploadManager;
 
     @Resource
@@ -55,30 +64,50 @@ public class MusicService {
     @Value("${oss.qiniu.bucket}")
     private String bucket;
 
-    @Transactional(rollbackFor = Exception.class)
-    public String uploadMusic(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        try {
-            InputStream inputStream = file.getInputStream();
-            String token = auth.uploadToken(bucket);
-            com.qiniu.http.Response response = uploadManager.put(inputStream, Helpers.buildOssFileName(fileName), token, null, null);
-        } catch (QiniuException e) {
-            log.error("File upload fail");
-            throw new RuntimeException(e);
+    public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) {
+        MultipartFile musicFile = uploadMusicDTO.getMusic();
+        MultipartFile coverFile = uploadMusicDTO.getCover();
+        String musicMime = musicFile.getContentType();
+        if (!FileUtil.checkAudioMime(musicMime)) {
+            return ApiResult.fail(String.format("music file content type[%s] not support!", musicMime));
+        }
+        String coverMime = coverFile.getContentType();
+        if (!FileUtil.checkImageMime(coverMime)) {
+            return ApiResult.fail(String.format("cover file content type[%s] not support!", coverMime));
+        }
+        String ossMusicName = Constant.MUSIC_DIR + Helpers.buildOssFileName(musicFile.getOriginalFilename());
+        String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
+        Music music = new Music();
+        music.setName(uploadMusicDTO.getName().trim());
+        music.setAlbum(uploadMusicDTO.getAlbum().trim());
+        music.setSinger(uploadMusicDTO.getSinger().trim());
+        music.setSize(musicFile.getSize());
+        music.setMime(musicMime);
+        music.setOss(OssProvider.QINIU);
+        music.setShardingSize(globalConfig.shardingSize);
+        musicMapper.insert(music);
+
+        String token = auth.uploadToken(bucket);
+        try(InputStream musicInputStream = musicFile.getInputStream();
+            InputStream coverInputStream = coverFile.getInputStream()) {
+
+
+            com.qiniu.http.Response uploadMusicResponse = uploadManager.put(musicInputStream, ossMusicName, token, null, null);
+            if (uploadMusicResponse.isOK()) {
+                music.setHash((String) uploadMusicResponse.jsonToMap().get("hash"));
+                music.setOssMusicName(ossMusicName);
+            }
+
+            com.qiniu.http.Response uploadCoverResponse = uploadManager.put(coverInputStream, ossCoverName, token, null, null);
+            if (uploadCoverResponse.isOK()) {
+                music.setOssCoverName(ossCoverName);
+            }
+            musicMapper.updateById(music);
         } catch (IOException e) {
-            log.error("");
             throw new RuntimeException(e);
         }
 
-//        long length = file.length();
-//        System.out.println(length);
-//            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-//
-//            System.out.println(response.getInfo());
-        //        catch (QiniuException e) {
-//            throw new RuntimeException(e);
-//        }
-        return "";
+        return ApiResult.ok();
     }
 
     public void fetchMusic(HttpServletRequest request, String hash) {

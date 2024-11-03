@@ -8,7 +8,7 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://127.0.0.1:3306/beethoven
+    url: jdbc:mysql:///beethoven
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
@@ -68,7 +68,11 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
-
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
 mybatis-plus:
   mapper-locations: classpath*:/mappers/**/*.xml
   global-config:
@@ -78,7 +82,7 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
-  type-aliases-package: com.org.beethoven.mapper.entity.*
+  type-aliases-package: org.beethoven.mapper.entity.*
 
 oss:
   qiniu:

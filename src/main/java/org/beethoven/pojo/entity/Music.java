@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.beethoven.pojo.enums.OssProvider;
 
 import java.util.Date;
 
@@ -25,15 +26,29 @@ public class Music {
 
     private String name;
 
-    private String album;
+    private String singer;
 
-    private String cover;
+    private String album;
 
     private int duration;
 
-    private int size;
+    private long size;
 
     private String mime;
+
+    private String ossMusicName;
+
+    private String ossCoverName;
+
+//    private String state;
+
+    private String hash;
+
+    private String sha;
+
+    private OssProvider oss;
+
+    private int shardingSize;
 
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;

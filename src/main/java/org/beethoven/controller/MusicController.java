@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.service.MusicService;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,11 +30,9 @@ public class MusicController {
     @Resource
     private MusicService musicService;
 
-    @RequestMapping("uploadMusic")
-    public ApiResult<String> uploadMusic(@RequestParam("file") MultipartFile file) {
-        musicService.uploadMusic(file);
-
-        return ApiResult.ok();
+    @RequestMapping(value = "uploadMusic", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public ApiResult<String> uploadMusic(@Valid UploadMusicDTO uploadMusicDTO) {
+        return musicService.uploadMusic(uploadMusicDTO);
     }
 
     @RequestMapping(value = "fetchMusic", method = RequestMethod.GET)

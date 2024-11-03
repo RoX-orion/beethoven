@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.andre</groupId>
-    <artifactId>Beethoven</artifactId>
+    <artifactId>beethoven-music</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Beethoven</name>
-    <description>Beethoven</description>
+    <name>Beethoven-Music</name>
+    <description>Beethoven Music</description>
     <url/>
     <licenses>
         <license/>
