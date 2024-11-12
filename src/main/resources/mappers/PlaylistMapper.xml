@@ -3,8 +3,13 @@
 <mapper namespace="org.beethoven.mapper.PlaylistMapper">
     <select id="getPlayList" resultType="org.beethoven.pojo.vo.PlaylistVo">
         select
-            *
-        from playlist
+            p.id,
+            p.title,
+            p.cover,
+            p.music_count,
+            u.username          as      author
+        from playlist p
+            left join user u on p.creator = u.id
         limit #{offset}, #{size}
     </select>
 </mapper>

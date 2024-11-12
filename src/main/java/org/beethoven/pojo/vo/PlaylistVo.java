@@ -17,7 +17,7 @@ public class PlaylistVo {
 
     private Integer id;
 
-    private String creator;
+    private String author;
 
     private String title;
 

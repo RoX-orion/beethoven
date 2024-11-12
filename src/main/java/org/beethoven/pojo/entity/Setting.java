@@ -19,5 +19,9 @@ public class Setting {
     @TableId
     private Integer id;
 
+    private Integer userId;
+
     private Boolean isMute;
+
+    private int volume;
 }
