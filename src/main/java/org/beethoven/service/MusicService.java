@@ -50,9 +50,6 @@ public class MusicService {
     private OkHttpClient httpClient;
 
     @Resource
-    private GlobalConfig globalConfig;
-
-    @Resource
     private UploadManager uploadManager;
 
     @Resource
@@ -84,7 +81,7 @@ public class MusicService {
         music.setSize(musicFile.getSize());
         music.setMime(musicMime);
         music.setOss(OssProvider.QINIU);
-        music.setShardingSize(globalConfig.shardingSize);
+        music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
         String token = auth.uploadToken(bucket);

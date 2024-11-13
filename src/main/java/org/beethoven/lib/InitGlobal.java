@@ -25,22 +25,35 @@ public class InitGlobal implements ApplicationRunner {
     @Resource
     private ConfigMapper configMapper;
 
-    @Resource
-    private GlobalConfig globalConfig;
 
     @Override
     public void run(ApplicationArguments args) {
-        Config config = configMapper.selectOne(
+        Config shardingSizeConfig = configMapper.selectOne(
                 new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.SHARDING_CONFIG_KEY)
         );
-        if (config != null && StringUtils.hasText(config.getConfigKey())) {
+        if (shardingSizeConfig != null && StringUtils.hasText(shardingSizeConfig.getConfigKey())) {
             try {
-                globalConfig.shardingSize = Integer.parseInt(config.getConfigValue());
+                GlobalConfig.shardingSize = Integer.parseInt(shardingSizeConfig.getConfigValue());
             } catch (Exception e) {
                 log.error("Init music file sharding size fail!");
                 log.error(e.getMessage());
+                System.exit(-1);
             }
             log.info("Init music file sharding size successfully!");
+        } else {
+            log.error("Music file sharding size can't be null!");
+            System.exit(-1);
+        }
+
+        Config ossDomainConfig = configMapper.selectOne(
+                new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.OSS_DOMAIN)
+        );
+        if (ossDomainConfig != null && StringUtils.hasText(ossDomainConfig.getConfigValue())) {
+            GlobalConfig.ossDomain = ossDomainConfig.getConfigValue();
+            log.info("Init oss domain successfully!");
+        } else {
+            log.error("Oss domain can't be null!");
+            System.exit(-1);
         }
     }
 }

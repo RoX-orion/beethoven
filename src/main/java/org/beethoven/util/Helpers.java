@@ -1,5 +1,6 @@
 package org.beethoven.util;
 
+import org.beethoven.lib.GlobalConfig;
 import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
@@ -99,6 +100,10 @@ public class Helpers {
         result[1] = (byte) ((value >> 8) & 0xFF);
         result[0] = (byte) (value & 0xFF);
         return result;
+    }
+
+    public static String buildFullOssLink(String uri) {
+        return GlobalConfig.ossDomain + uri;
     }
 
 //    public static String[] calculateHash(InputStream inputStream, int shardingSize) {

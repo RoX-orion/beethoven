@@ -30,5 +30,7 @@ public class Constant {
 
     public static final String SHARDING_CONFIG_KEY = "sharding_size";
 
+    public static final String OSS_DOMAIN = "oss_domain";
+
     public static final int DEFAULT_SHARDING_SIZE = 256 * 1024;
 }
