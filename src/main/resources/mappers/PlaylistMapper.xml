@@ -7,9 +7,9 @@
             p.title,
             p.cover,
             p.music_count,
-            u.username          as      author
+            a.username          as      author
         from playlist p
-            left join user u on p.creator = u.id
+            left join account a on p.creator = a.id
         limit #{offset}, #{size}
     </select>
 </mapper>
