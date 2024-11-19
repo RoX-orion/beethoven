@@ -9,8 +9,10 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.beethoven.lib.BeethovenLib;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
+import org.beethoven.lib.exception.MediaException;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
@@ -25,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
@@ -85,10 +89,22 @@ public class MusicService {
         musicMapper.insert(music);
 
         String token = auth.uploadToken(bucket);
+        int i;
+        byte[] buffer = new byte[4096];
+        String fileName = Constant.USER_DIR + "/musicTemp/" + musicFile.getOriginalFilename();
         try(InputStream musicInputStream = musicFile.getInputStream();
-            InputStream coverInputStream = coverFile.getInputStream()) {
+            InputStream coverInputStream = coverFile.getInputStream();
+            FileOutputStream outputStream = new FileOutputStream(fileName)) {
 
-
+            while ((i = musicInputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, i);
+            }
+            int duration = BeethovenLib.INSTANCE.get_duration(fileName);
+            if (duration <= 0) {
+                log.error("parse music info error, file name: {}", musicFile.getOriginalFilename());
+                throw new MediaException("parse music info error!");
+            }
+            music.setDuration(duration);
             com.qiniu.http.Response uploadMusicResponse = uploadManager.put(musicInputStream, ossMusicName, token, null, null);
             if (uploadMusicResponse.isOK()) {
                 music.setHash((String) uploadMusicResponse.jsonToMap().get("hash"));
@@ -102,6 +118,11 @@ public class MusicService {
             musicMapper.updateById(music);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            File file = new File(fileName);
+            if (file.exists()) {
+                file.delete();
+            }
         }
 
         return ApiResult.ok();

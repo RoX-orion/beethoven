@@ -33,4 +33,6 @@ public class Constant {
     public static final String OSS_DOMAIN = "oss_domain";
 
     public static final int DEFAULT_SHARDING_SIZE = 256 * 1024;
+
+    public static final String USER_DIR = System.getProperty("user.dir");
 }
