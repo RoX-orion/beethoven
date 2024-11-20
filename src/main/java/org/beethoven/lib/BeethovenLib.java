@@ -17,5 +17,6 @@ public interface BeethovenLib extends Library {
 
     BeethovenLib INSTANCE = Native.load("BeethovenLib", BeethovenLib.class);
 
-    int get_duration(String path);
+    double get_duration(String path);
 }
+

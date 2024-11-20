@@ -24,13 +24,11 @@ import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +63,7 @@ public class MusicService {
     @Value("${oss.qiniu.bucket}")
     private String bucket;
 
+    @Transactional
     public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) {
         MultipartFile musicFile = uploadMusicDTO.getMusic();
         MultipartFile coverFile = uploadMusicDTO.getCover();
@@ -91,21 +90,36 @@ public class MusicService {
         String token = auth.uploadToken(bucket);
         int i;
         byte[] buffer = new byte[4096];
-        String fileName = Constant.USER_DIR + "/musicTemp/" + musicFile.getOriginalFilename();
+        String fileName = Constant.USER_DIR + ossMusicName;
+        File tempFile = new File(fileName);
+        if (!tempFile.exists()) {
+            try {
+                File parentFile = tempFile.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+                tempFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        BufferedInputStream bufferedInputStream = null;
         try(InputStream musicInputStream = musicFile.getInputStream();
             InputStream coverInputStream = coverFile.getInputStream();
             FileOutputStream outputStream = new FileOutputStream(fileName)) {
-
             while ((i = musicInputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, i);
             }
-            int duration = BeethovenLib.INSTANCE.get_duration(fileName);
+            int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
             if (duration <= 0) {
                 log.error("parse music info error, file name: {}", musicFile.getOriginalFilename());
                 throw new MediaException("parse music info error!");
             }
             music.setDuration(duration);
-            com.qiniu.http.Response uploadMusicResponse = uploadManager.put(musicInputStream, ossMusicName, token, null, null);
+
+            bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
+            com.qiniu.http.Response uploadMusicResponse = uploadManager.put(bufferedInputStream, ossMusicName, token, null, null);
             if (uploadMusicResponse.isOK()) {
                 music.setHash((String) uploadMusicResponse.jsonToMap().get("hash"));
                 music.setOssMusicName(ossMusicName);
@@ -122,6 +136,13 @@ public class MusicService {
             File file = new File(fileName);
             if (file.exists()) {
                 file.delete();
+            }
+            if (bufferedInputStream != null) {
+                try {
+                    bufferedInputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
