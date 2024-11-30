@@ -1,6 +1,8 @@
 package org.beethoven.pojo.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.IEnum;
+import lombok.Getter;
+import org.beethoven.lib.exception.StorageException;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -10,18 +12,38 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
  * @date: 2024-11-03
  */
 
-public enum OssProvider {
+@Getter
+public enum OssProvider implements IEnum<String> {
 
-    QINIU("qiniu", "七牛云"),
-    MINIO("minio", "Minio");
-
-    @EnumValue
-    private final String provider;
+    QINIU("七牛云"),
+    MINIO("MinIO");
 
     private final String name;
 
-    OssProvider(String provider, String name) {
-        this.provider = provider;
+    OssProvider(String name) {
         this.name = name;
+    }
+
+    public static OssProvider getProvider(String provider) {
+        for (OssProvider value : OssProvider.values()) {
+            if (value.name.equals(provider)) {
+                return value;
+            }
+        }
+        throw new StorageException("Not found oss provider!");
+    }
+
+    public static boolean contains(String provider) {
+        for (OssProvider value : OssProvider.values()) {
+            if (value.name.equals(provider)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String getValue() {
+        return this.name();
     }
 }

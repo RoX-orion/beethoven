@@ -2,6 +2,7 @@ package org.beethoven.lib.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.exception.AuthenticationException;
+import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.pojo.entity.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -67,6 +68,13 @@ public class HandleGlobalException {
     public ApiResult<String> error(HttpRequestMethodNotSupportedException e) {
         log.error(e.getMessage());
         return ApiResult.build(400, "请求方法错误！");
+    }
+
+    @ResponseBody
+    @ExceptionHandler(BeethovenException.class)
+    public ApiResult<String> handleBeethovenException(BeethovenException e) {
+        log.error(e.getMessage());
+        return ApiResult.build(400, e.getMessage());
     }
 
     @ResponseBody

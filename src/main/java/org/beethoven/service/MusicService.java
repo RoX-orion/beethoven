@@ -1,18 +1,15 @@
 package org.beethoven.service;
 
-import com.qiniu.common.QiniuException;
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.UploadManager;
-import com.qiniu.storage.model.FileInfo;
-import com.qiniu.util.Auth;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
 import org.beethoven.lib.BeethovenLib;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.MediaException;
+import org.beethoven.lib.store.StorageContext;
+import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
@@ -29,9 +26,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -46,19 +41,13 @@ import java.util.Map;
 public class MusicService {
 
     @Resource
-    private Auth auth;
-
-    @Resource
     private OkHttpClient httpClient;
 
     @Resource
-    private UploadManager uploadManager;
-
-    @Resource
-    private BucketManager bucketManager;
-
-    @Resource
     private MusicMapper musicMapper;
+
+    @Resource
+    private StorageContext storageContext;
 
     @Value("${oss.qiniu.bucket}")
     private String bucket;
@@ -87,7 +76,7 @@ public class MusicService {
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
-        String token = auth.uploadToken(bucket);
+
         int i;
         byte[] buffer = new byte[4096];
         String fileName = Constant.USER_DIR + ossMusicName;
@@ -119,14 +108,14 @@ public class MusicService {
             music.setDuration(duration);
 
             bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
-            com.qiniu.http.Response uploadMusicResponse = uploadManager.put(bufferedInputStream, ossMusicName, token, null, null);
-            if (uploadMusicResponse.isOK()) {
-                music.setHash((String) uploadMusicResponse.jsonToMap().get("hash"));
+            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, bucket, ossMusicName);
+            if (uploadMusicResponse.isOk) {
+                music.setHash(uploadMusicResponse.hash);
                 music.setOssMusicName(ossMusicName);
             }
 
-            com.qiniu.http.Response uploadCoverResponse = uploadManager.put(coverInputStream, ossCoverName, token, null, null);
-            if (uploadCoverResponse.isOK()) {
+            StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, bucket, ossCoverName);
+            if (uploadCoverResponse.isOk) {
                 music.setOssCoverName(ossCoverName);
             }
             musicMapper.updateById(music);
@@ -160,6 +149,7 @@ public class MusicService {
     }
 
     public void fetchMusicFromOss(String url) {
+        /*
 //        long expireInSeconds = 10;//1小时，可以自定义链接过期时间
 //        String finalUrl = auth.privateDownloadUrl(url, expireInSeconds);
 //        System.out.println(finalUrl);
@@ -186,18 +176,19 @@ public class MusicService {
             log.error("签名验证失败出现异常，错误信息: {}", e.getMessage());
 //            return false;
         }
+        */
     }
 
     public void getOssFileInfo(String key) {
-        try {
-            FileInfo fileInfo = bucketManager.stat(bucket, key);
-            System.out.println(fileInfo.hash);
-            System.out.println(fileInfo.fsize);
-            System.out.println(fileInfo.mimeType);
-            System.out.println(fileInfo.putTime);
-        } catch (QiniuException e) {
-            System.out.println(e.response.getInfo().contains("no such file or directory"));
-        }
+//        try {
+//            FileInfo fileInfo = bucketManager.stat(bucket, key);
+//            System.out.println(fileInfo.hash);
+//            System.out.println(fileInfo.fsize);
+//            System.out.println(fileInfo.mimeType);
+//            System.out.println(fileInfo.putTime);
+//        } catch (QiniuException e) {
+//            System.out.println(e.response.getInfo().contains("no such file or directory"));
+//        }
     }
 
     public List<MusicVo> searchMusic(MusicDTO musicDTO) {

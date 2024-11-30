@@ -25,7 +25,6 @@ public class InitGlobal implements ApplicationRunner {
     @Resource
     private ConfigMapper configMapper;
 
-
     @Override
     public void run(ApplicationArguments args) {
         Config shardingSizeConfig = configMapper.selectOne(
