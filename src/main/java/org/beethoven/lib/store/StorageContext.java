@@ -1,7 +1,7 @@
 package org.beethoven.lib.store;
 
 import jakarta.annotation.Resource;
-import org.beethoven.pojo.enums.OssProvider;
+import org.beethoven.pojo.enums.StorageProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -26,17 +26,17 @@ public class StorageContext implements Storage {
 
     private Storage storage;
 
-    private final Map<OssProvider, Storage> ossMap = new HashMap<>();
+    private final Map<String, Storage> ossMap = new HashMap<>();
 
     @Autowired
     public StorageContext(final Qiniu qiniu,
                           final MinIO minIO) {
-        ossMap.put(OssProvider.QINIU, qiniu);
-        ossMap.put(OssProvider.MINIO, minIO);
+        ossMap.put(StorageProvider.QINIU.name(), qiniu);
+        ossMap.put(StorageProvider.MINIO.name(), minIO);
     }
 
-    public void refresh(OssProvider ossProvider) {
-        storage = ossMap.get(ossProvider) != null ? ossMap.get(ossProvider) : applicationContext.getBean(MinIO.class);
+    public void refresh(String provider) {
+        storage = ossMap.get(provider) != null ? ossMap.get(provider) : applicationContext.getBean(MinIO.class);
     }
 
     @Override

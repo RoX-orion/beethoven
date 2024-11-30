@@ -3,7 +3,7 @@ package org.beethoven.pojo.entity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.beethoven.pojo.enums.OssProvider;
+import org.beethoven.pojo.enums.StorageProvider;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -20,7 +20,7 @@ public class Storage {
     @TableId
     private Integer id;
 
-    private OssProvider provider;
+    private StorageProvider provider;
 
     private String accessKey;
 

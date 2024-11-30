@@ -13,19 +13,19 @@ import org.beethoven.lib.exception.StorageException;
  */
 
 @Getter
-public enum OssProvider implements IEnum<String> {
+public enum StorageProvider implements IEnum<String> {
 
     QINIU("七牛云"),
     MINIO("MinIO");
 
     private final String name;
 
-    OssProvider(String name) {
+    StorageProvider(String name) {
         this.name = name;
     }
 
-    public static OssProvider getProvider(String provider) {
-        for (OssProvider value : OssProvider.values()) {
+    public static StorageProvider getProvider(String provider) {
+        for (StorageProvider value : StorageProvider.values()) {
             if (value.name.equals(provider)) {
                 return value;
             }
@@ -34,7 +34,7 @@ public enum OssProvider implements IEnum<String> {
     }
 
     public static boolean contains(String provider) {
-        for (OssProvider value : OssProvider.values()) {
+        for (StorageProvider value : StorageProvider.values()) {
             if (value.name.equals(provider)) {
                 return true;
             }

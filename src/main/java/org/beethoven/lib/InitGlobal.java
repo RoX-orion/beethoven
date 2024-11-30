@@ -3,8 +3,10 @@ package org.beethoven.lib;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.beethoven.lib.store.StorageContext;
 import org.beethoven.mapper.ConfigMapper;
 import org.beethoven.pojo.entity.Config;
+import org.beethoven.service.StorageService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,12 @@ public class InitGlobal implements ApplicationRunner {
     @Resource
     private ConfigMapper configMapper;
 
+    @Resource
+    private StorageService storageService;
+
+    @Resource
+    private StorageContext storageContext;
+
     @Override
     public void run(ApplicationArguments args) {
         Config shardingSizeConfig = configMapper.selectOne(
@@ -44,15 +52,12 @@ public class InitGlobal implements ApplicationRunner {
             System.exit(-1);
         }
 
-        Config ossDomainConfig = configMapper.selectOne(
-                new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.OSS_DOMAIN)
-        );
-        if (ossDomainConfig != null && StringUtils.hasText(ossDomainConfig.getConfigValue())) {
-            GlobalConfig.ossDomain = ossDomainConfig.getConfigValue();
-            log.info("Init oss domain successfully!");
-        } else {
-            log.error("Oss domain can't be null!");
-            System.exit(-1);
+        try {
+            storageService.refreshStorageConfig(Constant.DEFAULT_STORAGE);
+            storageContext.refresh(Constant.DEFAULT_STORAGE);
+            log.info("Init storage configuration successfully!");
+        } catch (Exception e) {
+            log.error("Init storage configuration fail!");
         }
     }
 }

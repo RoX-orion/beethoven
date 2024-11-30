@@ -15,7 +15,7 @@ import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Music;
-import org.beethoven.pojo.enums.OssProvider;
+import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
@@ -72,7 +72,7 @@ public class MusicService {
         music.setSinger(uploadMusicDTO.getSinger().trim());
         music.setSize(musicFile.getSize());
         music.setMime(musicMime);
-        music.setOss(OssProvider.QINIU);
+        music.setOss(StorageProvider.QINIU);
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 

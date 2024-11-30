@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.beethoven.pojo.enums.OssProvider;
+import org.beethoven.pojo.enums.StorageProvider;
 
 import java.util.Date;
 
@@ -46,7 +46,7 @@ public class Music {
 
     private String sha;
 
-    private OssProvider oss;
+    private StorageProvider oss;
 
     private int shardingSize;
 
