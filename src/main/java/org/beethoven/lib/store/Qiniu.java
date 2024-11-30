@@ -6,8 +6,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
+import org.beethoven.lib.Constant;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -29,15 +28,12 @@ public class Qiniu implements Storage {
 
     private BucketManager bucketManager;
 
-    @Value("${oss.qiniu.access-key}")
-    private String accessKey;
+    private org.beethoven.pojo.entity.Storage storage;
 
-    @Value("${oss.qiniu.secret-key}")
-    private String secretKey;
-
-    @PostConstruct
+    @Override
     public void init() {
-        auth = Auth.create(accessKey, secretKey);
+        storage = Constant.getStorage();
+        auth = Auth.create(storage.getAccessKey(), storage.getSecretKey());
 
         Configuration config = new Configuration();
         config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
@@ -47,8 +43,8 @@ public class Qiniu implements Storage {
     }
 
     @Override
-    public StorageResponse upload(InputStream inputStream, String bucket, String fileName) {
-        String token = auth.uploadToken(bucket);
+    public StorageResponse upload(InputStream inputStream, String fileName) {
+        String token = auth.uploadToken(storage.getBucket());
         StorageResponse response = new StorageResponse();
         try {
             Response uploadMusicResponse = uploadManager.put(inputStream, fileName, token, null, null);
@@ -64,5 +60,10 @@ public class Qiniu implements Storage {
     @Override
     public void download() {
 
+    }
+
+    @Override
+    public String getURL(String fileName) {
+        return "";
     }
 }

@@ -12,7 +12,11 @@ import java.io.InputStream;
 
 public interface Storage {
 
-    StorageResponse upload(InputStream inputStream, String bucket, String fileName);
+    void init();
+
+    StorageResponse upload(InputStream inputStream, String fileName);
 
     void download();
+
+    String getURL(String fileName);
 }

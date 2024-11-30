@@ -1,6 +1,8 @@
 package org.beethoven.pojo.vo;
 
 import lombok.Data;
+import org.beethoven.lib.Constant;
+import org.beethoven.lib.annotation.SplicingValue;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +21,7 @@ public class AccountVo {
 
     private String username;
 
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String avatar;
 
     private LocalDateTime createTime;

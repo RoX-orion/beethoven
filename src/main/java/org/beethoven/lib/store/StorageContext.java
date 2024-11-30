@@ -37,15 +37,26 @@ public class StorageContext implements Storage {
 
     public void refresh(String provider) {
         storage = ossMap.get(provider) != null ? ossMap.get(provider) : applicationContext.getBean(MinIO.class);
+        init();
     }
 
     @Override
-    public StorageResponse upload(InputStream inputStream, String bucket, String fileName) {
-        return storage.upload(inputStream, bucket, fileName);
+    public void init() {
+        storage.init();
+    }
+
+    @Override
+    public StorageResponse upload(InputStream inputStream, String fileName) {
+        return storage.upload(inputStream, fileName);
     }
 
     @Override
     public void download() {
         storage.download();
+    }
+
+    @Override
+    public String getURL(String fileName) {
+        return storage.getURL(fileName);
     }
 }

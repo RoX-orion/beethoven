@@ -4,6 +4,7 @@
     <select id="searchMusic" resultType="org.beethoven.pojo.vo.MusicVo">
         select
             id,
+            name,
             singer,
             duration,
             size,

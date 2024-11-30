@@ -58,6 +58,7 @@ public class InitGlobal implements ApplicationRunner {
             log.info("Init storage configuration successfully!");
         } catch (Exception e) {
             log.error("Init storage configuration fail!");
+            log.error(e.getMessage());
         }
     }
 }

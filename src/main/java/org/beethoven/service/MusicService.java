@@ -19,7 +19,6 @@ import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -49,9 +48,6 @@ public class MusicService {
     @Resource
     private StorageContext storageContext;
 
-    @Value("${oss.qiniu.bucket}")
-    private String bucket;
-
     @Transactional
     public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) {
         MultipartFile musicFile = uploadMusicDTO.getMusic();
@@ -72,7 +68,7 @@ public class MusicService {
         music.setSinger(uploadMusicDTO.getSinger().trim());
         music.setSize(musicFile.getSize());
         music.setMime(musicMime);
-        music.setOss(StorageProvider.QINIU);
+        music.setStorage(StorageProvider.QINIU);
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
@@ -108,13 +104,13 @@ public class MusicService {
             music.setDuration(duration);
 
             bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
-            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, bucket, ossMusicName);
+            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
             if (uploadMusicResponse.isOk) {
                 music.setHash(uploadMusicResponse.hash);
                 music.setOssMusicName(ossMusicName);
             }
 
-            StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, bucket, ossCoverName);
+            StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
             if (uploadCoverResponse.isOk) {
                 music.setOssCoverName(ossCoverName);
             }

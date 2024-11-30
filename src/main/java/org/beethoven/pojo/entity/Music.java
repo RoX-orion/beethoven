@@ -46,7 +46,7 @@ public class Music {
 
     private String sha;
 
-    private StorageProvider oss;
+    private StorageProvider storage;
 
     private int shardingSize;
 

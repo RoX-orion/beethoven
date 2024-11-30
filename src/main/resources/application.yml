@@ -83,10 +83,3 @@ mybatis-plus:
       logic-not-delete-value: 0
 
   type-aliases-package: org.beethoven.mapper.entity.*
-
-oss:
-  qiniu:
-    access-key: gHB6iVEc4mX-ZN3CbeWkwI0IWBx3xBYu39cMvgDz
-    secret-key: Amt_QkOrAVFlE-VBio-lm-yeDjRrQoCakh9Y7TL5
-    bucket: andrelina
-    domain: https://sl3btfsle.hb-bkt.clouddn.com
