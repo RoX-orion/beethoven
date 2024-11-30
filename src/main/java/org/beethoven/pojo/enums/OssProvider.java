@@ -12,14 +12,15 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 
 public enum OssProvider {
 
-    QINIU(0, "七牛");
+    QINIU("qiniu", "七牛云"),
+    MINIO("minio", "Minio");
 
     @EnumValue
-    private int provider;
+    private final String provider;
 
-    private String name;
+    private final String name;
 
-    OssProvider(int provider, String name) {
+    OssProvider(String provider, String name) {
         this.provider = provider;
         this.name = name;
     }

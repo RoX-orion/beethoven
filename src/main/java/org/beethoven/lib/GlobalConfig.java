@@ -13,4 +13,8 @@ public class GlobalConfig {
     public static int shardingSize = Constant.DEFAULT_SHARDING_SIZE;
 
     public static String ossDomain;
+
+    public static String getValue() {
+        return null;
+    }
 }
