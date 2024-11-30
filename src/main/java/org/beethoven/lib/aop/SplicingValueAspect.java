@@ -40,7 +40,6 @@ public class SplicingValueAspect {
             Field[] fields = clazz.getDeclaredFields();
             setValue(fields, result);
         }
-
     }
 
     public void setValue(Field[] fields, Object result) throws IllegalAccessException {

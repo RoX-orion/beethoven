@@ -8,6 +8,7 @@
             singer,
             duration,
             size,
+            mime,
             oss_music_name          as          link,
             oss_cover_name          as          cover
         from music

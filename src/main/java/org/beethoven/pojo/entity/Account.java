@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.beethoven.lib.Constant;
+import org.beethoven.lib.annotation.SplicingValue;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +27,7 @@ public class Account {
 
     private String username;
 
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String avatar;
 
     @TableField(fill = FieldFill.INSERT)

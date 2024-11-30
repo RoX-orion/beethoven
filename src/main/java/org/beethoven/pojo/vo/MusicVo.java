@@ -15,6 +15,8 @@ import org.beethoven.lib.annotation.SplicingValue;
 @ToString
 public class MusicVo {
 
+    public String id;
+
     public String name;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)

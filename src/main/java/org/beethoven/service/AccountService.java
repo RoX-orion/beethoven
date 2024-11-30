@@ -5,7 +5,6 @@ import org.beethoven.mapper.AccountMapper;
 import org.beethoven.pojo.entity.Account;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.AccountVo;
-import org.beethoven.util.Helpers;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,6 @@ public class AccountService {
         Account account = accountMapper.selectById(userId);
         AccountVo accountVo = new AccountVo();
         BeanUtils.copyProperties(account, accountVo);
-        accountVo.setAvatar(Helpers.buildFullOssLink(accountVo.getAvatar()));
 
         return ApiResult.ok(accountVo);
     }
