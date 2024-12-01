@@ -1,6 +1,6 @@
 package org.beethoven.pojo.vo;
 
-import lombok.ToString;
+import lombok.Data;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.SplicingValue;
 
@@ -12,7 +12,7 @@ import org.beethoven.lib.annotation.SplicingValue;
  * @date: 2024-10-10
  */
 
-@ToString
+@Data
 public class MusicVo {
 
     public String id;

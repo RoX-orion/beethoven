@@ -8,10 +8,7 @@ import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.service.MusicService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,5 +45,12 @@ public class MusicController {
         List<MusicVo> musicVoList = musicService.searchMusic(musicDTO);
 
         return ApiResult.ok(musicVoList);
+    }
+
+    @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
+    public ApiResult<MusicVo> getMusicInfo(@PathVariable String id) {
+        MusicVo musicInfo = musicService.getMusicInfo(id);
+
+        return ApiResult.ok(musicInfo);
     }
 }

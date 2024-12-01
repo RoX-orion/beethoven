@@ -2,6 +2,8 @@ package org.beethoven.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import org.beethoven.lib.Constant;
+import org.beethoven.lib.annotation.SplicingValue;
 import org.beethoven.pojo.enums.StorageProvider;
 
 import java.util.Date;
@@ -33,8 +35,10 @@ public class Music {
 
     private String mime;
 
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String ossMusicName;
 
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String ossCoverName;
 
 //    private String state;

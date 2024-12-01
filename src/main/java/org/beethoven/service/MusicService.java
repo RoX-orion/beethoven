@@ -19,6 +19,7 @@ import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -190,5 +191,14 @@ public class MusicService {
     public List<MusicVo> searchMusic(MusicDTO musicDTO) {
         int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
         return musicMapper.searchMusic(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
+    }
+
+    public MusicVo getMusicInfo(String id) {
+        Music music = musicMapper.selectById(id);
+        MusicVo musicVo = new MusicVo();
+        BeanUtils.copyProperties(music, musicVo);
+        musicVo.link = music.getOssMusicName();
+        musicVo.cover = music.getOssCoverName();
+        return musicVo;
     }
 }
