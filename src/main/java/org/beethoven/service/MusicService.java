@@ -2,6 +2,7 @@ package org.beethoven.service;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.beethoven.lib.BeethovenLib;
@@ -16,6 +17,7 @@ import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Music;
 import org.beethoven.pojo.enums.StorageProvider;
+import org.beethoven.pojo.vo.ManageMusic;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
@@ -200,5 +202,10 @@ public class MusicService {
         musicVo.link = music.getOssMusicName();
         musicVo.cover = music.getOssCoverName();
         return musicVo;
+    }
+
+    public List<ManageMusic> getManageMusicList(@Valid MusicDTO musicDTO) {
+        int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
+        return musicMapper.getManageMusicList(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
     }
 }

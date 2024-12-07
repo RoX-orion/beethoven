@@ -16,4 +16,24 @@
            or singer like #{key}
         limit #{offset}, #{size};
     </select>
+    <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.ManageMusic">
+        select
+            id,
+            name,
+            singer,
+            duration,
+            size,
+            mime,
+            oss_music_name          as          link,
+            oss_cover_name          as          cover,
+            create_time,
+            update_time
+        from music
+        <where>
+            <if test="key != null and key != ''">
+                and (name like #{key} or singer like #{key})
+            </if>
+        </where>
+        limit #{offset}, #{size};
+    </select>
 </mapper>

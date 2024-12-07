@@ -17,6 +17,5 @@ public class PageDTO {
     @NotNull
     private Integer page;
 
-    @NotNull
-    private Integer size;
+    private Integer size = 10;
 }

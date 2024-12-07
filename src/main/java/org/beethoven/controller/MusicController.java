@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.vo.ManageMusic;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.*;
@@ -52,5 +53,12 @@ public class MusicController {
         MusicVo musicInfo = musicService.getMusicInfo(id);
 
         return ApiResult.ok(musicInfo);
+    }
+
+    @RequestMapping("manage/getManageMusicList")
+    public ApiResult<List<ManageMusic>> getManageMusicList(MusicDTO musicDTO) {
+        List<ManageMusic> manageMusicList = musicService.getManageMusicList(musicDTO);
+
+        return ApiResult.ok(manageMusicList);
     }
 }
