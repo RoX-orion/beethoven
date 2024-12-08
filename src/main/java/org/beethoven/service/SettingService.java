@@ -1,8 +1,10 @@
 package org.beethoven.service;
 
+import jakarta.annotation.Resource;
+import org.beethoven.lib.GlobalConfig;
+import org.beethoven.lib.store.StorageContext;
 import org.beethoven.mapper.SettingMapper;
 import org.beethoven.pojo.entity.Setting;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,16 +18,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class SettingService {
 
-    private final SettingMapper settingMapper;
+    @Resource
+    private SettingMapper settingMapper;
 
-    @Autowired
-    public SettingService(
-            final SettingMapper settingMapper
-    ) {
-        this.settingMapper = settingMapper;
-    }
+    @Resource
+    private StorageContext storageContext;
 
     public Setting getSetting() {
-        return settingMapper.selectById(1);
+        Setting setting = settingMapper.selectById(1);
+        setting.setDefaultMusicCover(storageContext.getURL(GlobalConfig.defaultMusicCover));
+
+        return setting;
     }
 }

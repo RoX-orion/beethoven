@@ -2,7 +2,7 @@ package org.beethoven.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
-import org.beethoven.lib.Constant;
+import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
 import org.beethoven.mapper.StorageMapper;
 import org.beethoven.pojo.dto.StorageDTO;
@@ -57,7 +57,7 @@ public class StorageService {
         if (storage == null) {
             throw new StorageException("Not configure storage!");
         }
-        Constant.ENDPOINT = storage.getEndpoint();
-        Constant.setStorage(storage);
+        GlobalConfig.endpoint = storage.getEndpoint();
+        GlobalConfig.setStorage(storage);
     }
 }

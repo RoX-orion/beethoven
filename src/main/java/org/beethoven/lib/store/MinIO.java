@@ -7,7 +7,7 @@ import io.minio.PutObjectArgs;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
-import org.beethoven.lib.Constant;
+import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +34,7 @@ public class MinIO implements Storage {
 
     @Override
     public void init() {
-        storage = Constant.getStorage();
+        storage = GlobalConfig.getStorage();
         minioClient = MinioClient.builder()
                         .endpoint(storage.getEndpoint())
                         .credentials(storage.getAccessKey(), storage.getSecretKey())

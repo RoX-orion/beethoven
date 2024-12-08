@@ -1,9 +1,6 @@
 package org.beethoven.lib;
 
 import com.google.common.collect.Lists;
-import lombok.Setter;
-import org.beethoven.lib.exception.StorageException;
-import org.beethoven.pojo.entity.Storage;
 import org.beethoven.pojo.enums.StorageProvider;
 
 import java.util.List;
@@ -32,9 +29,9 @@ public class Constant {
 
     public static final String COVER_DIR = "cover/";
 
-    public static final String SHARDING_CONFIG_KEY = "sharding_size";
+    public static final String SHARDING_SIZE = "shardingSize";
 
-    public static String ENDPOINT;
+    public static final String DEFAULT_MUSIC_COVER = "defaultMusicCover";
 
     public static final String ENDPOINT_PREFIX = "ENDPOINT";
 
@@ -43,14 +40,4 @@ public class Constant {
     public static final String USER_DIR = System.getProperty("user.dir");
 
     public static final String DEFAULT_STORAGE = StorageProvider.MINIO.name();
-
-    @Setter
-    private static Storage storage;
-
-    public static Storage getStorage() {
-        if (storage == null) {
-            throw new StorageException("Storage config is null!");
-        }
-        return storage;
-    }
 }

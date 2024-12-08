@@ -13,5 +13,4 @@ import org.beethoven.pojo.entity.Config;
 
 public interface ConfigMapper extends BaseMapper<Config> {
 
-
 }

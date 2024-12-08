@@ -6,7 +6,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
-import org.beethoven.lib.Constant;
+import org.beethoven.lib.GlobalConfig;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public class Qiniu implements Storage {
 
     @Override
     public void init() {
-        storage = Constant.getStorage();
+        storage = GlobalConfig.getStorage();
         auth = Auth.create(storage.getAccessKey(), storage.getSecretKey());
 
         Configuration config = new Configuration();

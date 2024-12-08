@@ -1,6 +1,5 @@
 package org.beethoven.util;
 
-import org.beethoven.lib.GlobalConfig;
 import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
@@ -18,8 +17,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Helpers {
 
     private Helpers() {}
-
-    private static final int BUFFER_SIZE = 1024 * 8;
 
     public static String getRandomString(int length) {
         StringBuilder sb = new StringBuilder();
@@ -102,9 +99,9 @@ public class Helpers {
         return result;
     }
 
-    public static String buildFullOssLink(String uri) {
-        return GlobalConfig.ossDomain + uri;
-    }
+//    public static String buildFullOssLink(String uri) {
+//        return GlobalConfig.endpoint + uri;
+//    }
 
 //    public static String[] calculateHash(InputStream inputStream, int shardingSize) {
 //        int len = 0;

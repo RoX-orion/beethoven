@@ -75,7 +75,6 @@ public class MusicService {
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
-
         int i;
         byte[] buffer = new byte[4096];
         String fileName = Constant.USER_DIR + ossMusicName;

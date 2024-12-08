@@ -29,16 +29,18 @@ public class SplicingValueAspect {
 
     @AfterReturning(value = "execution(* org.beethoven.mapper..*(..))", returning = "result")
     public void splicingValue(Object result) throws IllegalAccessException {
-        Class<?> clazz = result.getClass();
-        if (result instanceof List<?> list) {
-            for (Object item : list) {
-                Class<?> itemClazz = item.getClass();
-                Field[] fields = itemClazz.getDeclaredFields();
-                setValue(fields, item);
+        if (result != null) {
+            Class<?> clazz = result.getClass();
+            if (result instanceof List<?> list) {
+                for (Object item : list) {
+                    Class<?> itemClazz = item.getClass();
+                    Field[] fields = itemClazz.getDeclaredFields();
+                    setValue(fields, item);
+                }
+            } else {
+                Field[] fields = clazz.getDeclaredFields();
+                setValue(fields, result);
             }
-        } else {
-            Field[] fields = clazz.getDeclaredFields();
-            setValue(fields, result);
         }
     }
 

@@ -17,8 +17,6 @@ import lombok.Data;
 public class Config {
 
     @TableId
-    private Integer id;
-
     private String configKey;
 
     private String configValue;

@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
  *
- * @description:
+ * @description: Init application
  * @author: Andre Lina
  * @date: 2024-11-03
  */
@@ -36,7 +36,7 @@ public class InitGlobal implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         Config shardingSizeConfig = configMapper.selectOne(
-                new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.SHARDING_CONFIG_KEY)
+                new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.SHARDING_SIZE)
         );
         if (shardingSizeConfig != null && StringUtils.hasText(shardingSizeConfig.getConfigKey())) {
             try {
@@ -44,13 +44,11 @@ public class InitGlobal implements ApplicationRunner {
             } catch (Exception e) {
                 log.error("Init music file sharding size fail!");
                 log.error(e.getMessage());
-                System.exit(-1);
             }
-            log.info("Init music file sharding size successfully!");
         } else {
-            log.error("Music file sharding size can't be null!");
-            System.exit(-1);
+            log.warn("Music file sharding size is null, use default sharding size.");
         }
+        log.info("Init music file sharding size successfully!");
 
         try {
             storageService.refreshStorageConfig(Constant.DEFAULT_STORAGE);
@@ -59,6 +57,13 @@ public class InitGlobal implements ApplicationRunner {
         } catch (Exception e) {
             log.error("Init storage configuration fail!");
             log.error(e.getMessage());
+        }
+
+        Config defaultMusicCover = configMapper.selectOne(
+                new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.DEFAULT_MUSIC_COVER)
+        );
+        if (defaultMusicCover != null && StringUtils.hasText(defaultMusicCover.getConfigValue())) {
+            GlobalConfig.defaultMusicCover = defaultMusicCover.getConfigValue();
         }
     }
 }
