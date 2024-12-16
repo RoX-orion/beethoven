@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.SplicingValue;
+import org.beethoven.pojo.enums.UserType;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +26,11 @@ public class Account {
     @TableId
     private Integer id;
 
+    private String email;
+
     private String username;
+
+    private UserType userType;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String avatar;
