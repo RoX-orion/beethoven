@@ -1,13 +1,16 @@
 package org.beethoven.service;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.beethoven.lib.BeethovenLib;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
+import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.lib.exception.MediaException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
@@ -136,17 +139,41 @@ public class MusicService {
         return ApiResult.ok();
     }
 
-    public void fetchMusic(HttpServletRequest request, String hash) {
+    public void fetchMusic(HttpServletRequest request, HttpServletResponse response, String fileName) {
         String range = request.getHeader("Range");
-        if (StringUtils.hasText(range)) {
-
-        } else {
-
+        Long start = null, end = null;
+        try {
+            if (StringUtils.hasText(range)) {
+                int i = range.indexOf('=');
+                if (i != -1) {
+                    String byteData = range.substring(i + 1);
+                    int splitIndex = 0;
+                    if (byteData.charAt(0) != '-') {
+                        splitIndex = byteData.indexOf('-');
+                        start = Long.valueOf(byteData.substring(0, splitIndex));
+                    }
+                    if (byteData.length() - 1 != splitIndex) {
+                        end = Long.valueOf(byteData.substring(splitIndex + 1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new BeethovenException("Invalid split data!");
         }
-        System.out.println(range);
+
+        try (InputStream inputStream = storageContext.download(fileName, start, end)) {
+            byte[] bytes = new byte[4096];
+            int len;
+            ServletOutputStream outputStream = response.getOutputStream();
+            while ((len = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, len);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void fetchMusicFromOss(String url) {
+    public void fetchMusic(String fileName) {
         /*
 //        long expireInSeconds = 10;//1小时，可以自定义链接过期时间
 //        String finalUrl = auth.privateDownloadUrl(url, expireInSeconds);

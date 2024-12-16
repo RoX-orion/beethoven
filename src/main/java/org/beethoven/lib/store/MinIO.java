@@ -1,9 +1,6 @@
 package org.beethoven.lib.store;
 
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +60,20 @@ public class MinIO implements Storage {
     }
 
     @Override
-    public void download() {
-
+    public InputStream download(String fileName, Long start, Long length) {
+        try {
+            return minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(storage.getBucket())
+                            .object(fileName)
+                            .offset(start)
+                            .length(length)
+                            .build());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -78,7 +87,7 @@ public class MinIO implements Storage {
                                     .build());
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
+                XmlParserException e) {
             log.error(e.getMessage());
             throw new StorageException("Get file URL fail!");
         }

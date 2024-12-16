@@ -19,7 +19,7 @@ public class MusicVo {
 
     public String name;
 
-    @SplicingValue(Constant.ENDPOINT_PREFIX)
+//    @SplicingValue(Constant.ENDPOINT_PREFIX)
     public String link;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)

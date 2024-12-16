@@ -16,7 +16,7 @@ public interface Storage {
 
     StorageResponse upload(InputStream inputStream, String fileName);
 
-    void download();
+    InputStream download(String fileName, Long start, Long length);
 
     String getURL(String fileName);
 }

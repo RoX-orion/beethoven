@@ -2,6 +2,7 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
@@ -35,8 +36,9 @@ public class MusicController {
 
     @RequestMapping(value = "fetchMusic", method = RequestMethod.GET)
     public ApiResult<Void> fetchMusic(HttpServletRequest request,
-                                      @RequestParam("hash") String hash) {
-        musicService.fetchMusic(request, hash);
+                                      HttpServletResponse response,
+                                      @RequestParam("fileName") String fileName) {
+        musicService.fetchMusic(request, response, fileName);
 
         return ApiResult.ok();
     }

@@ -58,8 +58,8 @@ public class Qiniu implements Storage {
     }
 
     @Override
-    public void download() {
-
+    public InputStream download(String fileName, Long start, Long end) {
+        return null;
     }
 
     @Override

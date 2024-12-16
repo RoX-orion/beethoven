@@ -1,13 +1,12 @@
 package org.andre.beethoven;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import jakarta.annotation.Resource;
 import org.beethoven.BeethovenApplication;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.pojo.entity.Music;
-import org.beethoven.pojo.enums.OssProvider;
+import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.service.MusicService;
 import org.beethoven.util.Helpers;
 import org.junit.Test;
@@ -45,9 +44,6 @@ public class MusicTest {
     private String bucket;
 
     @Resource
-    private ObjectMapper mapper;
-
-    @Resource
     private MusicMapper musicMapper;
 
     @Test
@@ -58,15 +54,11 @@ public class MusicTest {
         com.qiniu.http.Response response = uploadManager.put(inputStream, "video/" + Helpers.buildOssFileName(fileName), token, null, null);
         System.out.println(response.isOK());
         System.out.println(response.jsonToMap().get("hash"));
-//        Map<String, String> map = mapper.readValue(response.getInfo(), new TypeReference<HashMap<String, String>>() {});
-//        System.out.println(map.get("hash"));
-//        System.out.println(response.getResponse().message());
     }
 
     @Test
-    public void fetchMusicFromOss() {
-//        musicService.fetchMusicFromOss("http://sl3btfsle.hb-bkt.clouddn.com/rain.mp3");
-        musicService.fetchMusicFromOss("http://sl3btfsle.hb-bkt.clouddn.com/rain.mp3");
+    public void fetchMusic() {
+//        musicService.fetchMusic("rain.mp3");
     }
 
     @Test
@@ -82,7 +74,7 @@ public class MusicTest {
         music.setSinger("lizhi");
         music.setSize(123456);
         music.setMime("abc");
-        music.setOss(OssProvider.QINIU);
+        music.setStorage(StorageProvider.QINIU);
         musicMapper.insert(music);
     }
 }

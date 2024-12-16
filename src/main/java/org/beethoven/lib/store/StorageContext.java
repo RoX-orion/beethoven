@@ -1,6 +1,7 @@
 package org.beethoven.lib.store;
 
 import jakarta.annotation.Resource;
+import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 
 @Component
-public class StorageContext implements Storage {
+public class StorageContext {
 
     @Resource
     private ApplicationContext applicationContext;
@@ -40,22 +41,33 @@ public class StorageContext implements Storage {
         init();
     }
 
-    @Override
     public void init() {
         storage.init();
     }
 
-    @Override
     public StorageResponse upload(InputStream inputStream, String fileName) {
         return storage.upload(inputStream, fileName);
     }
 
-    @Override
-    public void download() {
-        storage.download();
+    public InputStream download(String fileName, Long start, Long end) {
+        if (start != null && start < 0) {
+            throw new BeethovenException("Start position of file can't less than 0!");
+        }
+        if (end != null && end < 0) {
+            throw new BeethovenException("End position of file can't less than 0!");
+        }
+        if (start != null && end != null && end <= start) {
+            throw new BeethovenException("Start must less than end!");
+        }
+        Long length = null;
+        if (start != null && end != null) {
+            length = end - start + 1;
+        } else if (start == null && end != null) {
+            length = end;
+        }
+        return storage.download(fileName, start, length);
     }
 
-    @Override
     public String getURL(String fileName) {
         return storage.getURL(fileName);
     }

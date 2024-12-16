@@ -73,14 +73,14 @@ public class HandleGlobalException {
     @ResponseBody
     @ExceptionHandler(BeethovenException.class)
     public ApiResult<String> handleBeethovenException(BeethovenException e) {
-        log.error(e.getMessage());
+        e.printStackTrace();
         return ApiResult.build(400, e.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
     public ApiResult<String> error(Exception e) {
-        log.error(e.getMessage());
+        e.printStackTrace();
         return ApiResult.error();
     }
 }
