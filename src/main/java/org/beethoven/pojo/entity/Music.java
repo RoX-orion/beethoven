@@ -6,7 +6,7 @@ import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.SplicingValue;
 import org.beethoven.pojo.enums.StorageProvider;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -35,7 +35,7 @@ public class Music {
 
     private String mime;
 
-    @SplicingValue(Constant.ENDPOINT_PREFIX)
+//    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String ossMusicName;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)
@@ -52,8 +52,8 @@ public class Music {
     private int shardingSize;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
+    private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
+    private LocalDateTime updateTime;
 }

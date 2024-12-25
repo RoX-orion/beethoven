@@ -29,7 +29,7 @@ public class MusicVo {
 
     public int duration;
 
-    public int size;
+    public long size;
 
     public String mime;
 }
