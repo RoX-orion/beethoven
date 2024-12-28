@@ -1,5 +1,7 @@
 package org.beethoven.pojo.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +17,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class PlaylistDTO extends PageDTO {
 
+    private Long id;
+
+    @Size(min = 1, max = 32)
+    @NotBlank(message = "歌单名称不能为空")
     private String title;
+
+    private String introduction;
 
     private String cover;
 }

@@ -1,6 +1,5 @@
 package org.beethoven.pojo.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -14,7 +13,6 @@ import lombok.Data;
 @Data
 public class PageDTO {
 
-    @NotNull
     private Integer page;
 
     private Integer size = 10;

@@ -1,9 +1,9 @@
 package org.beethoven.pojo.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -18,9 +18,17 @@ import lombok.Data;
 public class Config {
 
     @TableId(type = IdType.ASSIGN_ID)
+    private Long id;
+
     private String configKey;
 
     private String configValue;
 
     private String remark;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 }

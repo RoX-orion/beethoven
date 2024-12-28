@@ -19,7 +19,7 @@ import org.beethoven.pojo.enums.StorageProvider;
 public class Storage {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Integer id;
+    private Long id;
 
     private StorageProvider provider;
 

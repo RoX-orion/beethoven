@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class Music {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
     private String name;
 

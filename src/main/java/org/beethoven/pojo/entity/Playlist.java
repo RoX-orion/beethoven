@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class Playlist {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Integer id;
+    private Long id;
 
     private Integer creator;
 

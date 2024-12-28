@@ -7,7 +7,6 @@ import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.mapper.PlaylistMapper;
 import org.beethoven.pojo.PageParam;
-import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -51,7 +50,7 @@ public class PlaylistService {
         return playlistMapper.getPlayList(offset, playlistDTO.getSize());
     }
 
-    public void addPlaylist(@Valid AddPlaylistDto playlistInfo) {
+    public void addPlaylist(@Valid PlaylistDTO playlistInfo) {
         Playlist playlist = new Playlist();
         playlist.setCreator(authService.getUserId());
         playlist.setTitle(playlistInfo.getTitle());
@@ -95,5 +94,20 @@ public class PlaylistService {
 
     public PlaylistVo getPlaylistInfo(String playlistId) {
         return playlistMapper.getPlaylistInfo(playlistId);
+    }
+
+    public ApiResult<Void> updatePlaylist(PlaylistDTO playlistDTO) {
+        if (!playlistMapper.exists(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistDTO.getId()))) {
+            return ApiResult.fail("歌单不存在");
+        }
+
+        Playlist playlist = new Playlist();
+        playlist.setId(playlistDTO.getId());
+        playlist.setTitle(playlistDTO.getTitle());
+        playlist.setIntroduction(playlistDTO.getIntroduction());
+
+        playlistMapper.updateById(playlist);
+
+        return ApiResult.ok();
     }
 }

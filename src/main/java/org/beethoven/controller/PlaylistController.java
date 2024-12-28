@@ -2,7 +2,6 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -36,7 +35,7 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "addPlaylist", method = RequestMethod.POST)
-    public ApiResult<Void> addPlaylist(@RequestBody @Valid AddPlaylistDto playlistInfo) {
+    public ApiResult<Void> addPlaylist(@RequestBody @Valid PlaylistDTO playlistInfo) {
         playlistService.addPlaylist(playlistInfo);
 
         return ApiResult.ok();
@@ -61,5 +60,10 @@ public class PlaylistController {
         PlaylistVo playlistVo = playlistService.getPlaylistInfo(playlistId);
 
         return ApiResult.ok(playlistVo);
+    }
+
+    @RequestMapping(value = "updatePlaylist", method = RequestMethod.PUT)
+    public ApiResult<Void> updatePlaylist(@RequestBody @Valid PlaylistDTO playlistDTO) {
+        return playlistService.updatePlaylist(playlistDTO);
     }
 }

@@ -18,7 +18,7 @@ import lombok.Data;
 public class Setting {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Integer id;
+    private Long id;
 
     private Integer userId;
 

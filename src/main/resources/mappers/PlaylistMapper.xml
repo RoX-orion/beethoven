@@ -21,6 +21,7 @@
             m.duration,
             m.size,
             m.album,
+            m.mime,
             m.oss_music_name        as      link,
             m.oss_cover_name        as      cover
         from music_playlist mp
@@ -39,6 +40,7 @@
             p.cover,
             p.music_count,
             p.create_time,
+            p.introduction,
             a.username          as      author
         from playlist p
             left join account a on p.creator = a.id
