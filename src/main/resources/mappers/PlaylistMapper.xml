@@ -12,4 +12,36 @@
             left join account a on p.creator = a.id
         limit #{offset}, #{size}
     </select>
+
+    <select id="getPlaylistMusic" resultType="org.beethoven.pojo.vo.MusicVo">
+        select
+            m.id,
+            m.name,
+            m.singer,
+            m.duration,
+            m.size,
+            m.album,
+            m.oss_music_name        as      link,
+            m.oss_cover_name        as      cover
+        from music_playlist mp
+        inner join music m on mp.music_id = m.id
+        where mp.playlist_id = #{playlistId}
+        order by mp.music_id
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.offset}
+        </if>
+    </select>
+
+    <select id="getPlaylistInfo" resultType="org.beethoven.pojo.vo.PlaylistVo">
+        select
+            p.id,
+            p.title,
+            p.cover,
+            p.music_count,
+            p.create_time,
+            a.username          as      author
+        from playlist p
+            left join account a on p.creator = a.id
+        where p.id = #{playlistId}
+    </select>
 </mapper>

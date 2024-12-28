@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.mapper.PlaylistMapper;
+import org.beethoven.pojo.PageParam;
 import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
@@ -13,7 +14,9 @@ import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Music;
 import org.beethoven.pojo.entity.MusicPlaylist;
 import org.beethoven.pojo.entity.Playlist;
+import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.pojo.vo.PlaylistVo;
+import org.beethoven.util.Helpers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,5 +85,15 @@ public class PlaylistService {
         playlistMapper.updateById(playlist);
 
         return ApiResult.ok();
+    }
+
+    public List<MusicVo> getPlaylistMusic(String playlistId, Integer page, Integer size) {
+        PageParam pageParam = Helpers.buildPageParam(page, size);
+
+        return playlistMapper.getPlaylistMusic(playlistId, pageParam);
+    }
+
+    public PlaylistVo getPlaylistInfo(String playlistId) {
+        return playlistMapper.getPlaylistInfo(playlistId);
     }
 }

@@ -3,7 +3,9 @@ package org.beethoven.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import jakarta.validation.constraints.NotNull;
 import org.apache.ibatis.annotations.Param;
+import org.beethoven.pojo.PageParam;
 import org.beethoven.pojo.entity.Playlist;
+import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.pojo.vo.PlaylistVo;
 
 import java.util.List;
@@ -19,4 +21,9 @@ import java.util.List;
 public interface PlaylistMapper extends BaseMapper<Playlist> {
     List<PlaylistVo> getPlayList(@Param("offset") int offset,
                                  @NotNull @Param("size") Integer size);
+
+    List<MusicVo> getPlaylistMusic(@Param("playlistId") String playlistId,
+                                   @Param("pageParam") PageParam pageParam);
+
+    PlaylistVo getPlaylistInfo(@Param("playlistId") String playlistId);
 }

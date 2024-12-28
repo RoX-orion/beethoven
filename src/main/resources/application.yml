@@ -78,7 +78,7 @@ spring:
           min-idle: 0
 
   jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
+#    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   servlet:
     multipart:
@@ -94,6 +94,8 @@ mybatis-plus:
       logic-not-delete-value: 0
 
   type-aliases-package: org.beethoven.mapper.entity.*
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 oauth2:
   github:

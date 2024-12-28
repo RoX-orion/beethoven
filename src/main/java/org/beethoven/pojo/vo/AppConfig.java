@@ -16,4 +16,6 @@ public class AppConfig {
     private String defaultMusicCover;
 
     private String brand;
+
+    private int shardingSize;
 }

@@ -37,8 +37,11 @@ public class AppService {
     private InitGlobal initGlobal;
 
     public AppConfig getAppConfig() {
+        AppConfig appConfig = new AppConfig();
+        appConfig.setDefaultMusicCover(storageContext.getURL(GlobalConfig.defaultMusicCover));
+        appConfig.setShardingSize(GlobalConfig.shardingSize);
 
-        return new AppConfig();
+        return appConfig;
     }
 
     public MusicConfig getMusicConfig() {

@@ -32,4 +32,6 @@ public class MusicVo {
     public long size;
 
     public String mime;
+
+    public String album;
 }

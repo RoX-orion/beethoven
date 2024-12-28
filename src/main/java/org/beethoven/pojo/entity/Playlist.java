@@ -1,9 +1,6 @@
 package org.beethoven.pojo.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,7 +17,7 @@ import java.time.LocalDateTime;
 @TableName("playlist")
 public class Playlist {
 
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
 
     private Integer creator;

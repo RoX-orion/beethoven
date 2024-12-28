@@ -223,6 +223,9 @@ public class MusicService {
 
     public MusicVo getMusicInfo(String id) {
         Music music = musicMapper.selectById(id);
+        if (music == null) {
+            throw new BeethovenException("音乐不存在！");
+        }
         MusicVo musicVo = new MusicVo();
         BeanUtils.copyProperties(music, musicVo);
         musicVo.link = music.getOssMusicName();

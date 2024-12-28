@@ -1,9 +1,12 @@
 package org.beethoven.util;
 
+import org.beethoven.pojo.PageParam;
 import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -97,6 +100,29 @@ public class Helpers {
         result[1] = (byte) ((value >> 8) & 0xFF);
         result[0] = (byte) (value & 0xFF);
         return result;
+    }
+
+    public static Map<String, String> getBodyAsMap(String source) {
+        Map<String, String> body = new HashMap<>();
+        String[] split = source.split("&");
+        for (String s : split) {
+            String[] kv = s.split("=");
+            if (kv.length == 2) {
+                body.put(kv[0], kv[1]);
+            } else {
+                body.put(kv[0], null);
+            }
+        }
+        return body;
+    }
+
+    public static PageParam buildPageParam(Integer page, Integer size) {
+        if (page == null) return null;
+        PageParam pageParam = new PageParam();
+        pageParam.setPage(page);
+        pageParam.setOffset(size != null ? (page - 1) * size : (page - 1) * 15);
+
+        return pageParam;
     }
 
 //    public static String buildFullOssLink(String uri) {

@@ -1,5 +1,6 @@
 package org.beethoven.pojo.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -16,7 +17,7 @@ import lombok.Data;
 @TableName("config")
 public class Config {
 
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private String configKey;
 
     private String configValue;

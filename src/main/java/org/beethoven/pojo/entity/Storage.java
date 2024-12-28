@@ -1,5 +1,6 @@
 package org.beethoven.pojo.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -17,7 +18,7 @@ import org.beethoven.pojo.enums.StorageProvider;
 @TableName("storage")
 public class Storage {
 
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
 
     private StorageProvider provider;

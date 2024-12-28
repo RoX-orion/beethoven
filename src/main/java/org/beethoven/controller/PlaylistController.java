@@ -6,12 +6,10 @@ import org.beethoven.pojo.dto.AddPlaylistDto;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.service.PlaylistService;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -47,5 +45,21 @@ public class PlaylistController {
     @RequestMapping(value = "addMusic", method = RequestMethod.POST)
     public ApiResult<String> addMusicToPlaylist(@RequestBody @Valid MusicPlaylistDTO musicPlaylistDTO) {
         return playlistService.addMusicToPlaylist(musicPlaylistDTO);
+    }
+
+    @RequestMapping(value = "music", method = RequestMethod.GET)
+    public ApiResult<List<MusicVo>> getPlaylistMusic(@RequestParam("playlistId") String playlistId,
+                                                     @RequestParam(value = "page", required = false) Integer page,
+                                                     @RequestParam(value = "size", required = false) Integer size) {
+        List<MusicVo> playListMusic = playlistService.getPlaylistMusic(playlistId, page, size);
+
+        return ApiResult.ok(playListMusic);
+    }
+
+    @RequestMapping(value = "info", method = RequestMethod.GET)
+    public ApiResult<PlaylistVo> getPlaylistInfo(@RequestParam("playlistId") String playlistId) {
+        PlaylistVo playlistVo = playlistService.getPlaylistInfo(playlistId);
+
+        return ApiResult.ok(playlistVo);
     }
 }

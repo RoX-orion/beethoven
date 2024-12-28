@@ -2,7 +2,7 @@ package org.beethoven.pojo.vo;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -25,7 +25,7 @@ public class PlaylistVo {
 
     private int musicCount;
 
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    private Date updateTime;
+    private LocalDateTime updateTime;
 }
