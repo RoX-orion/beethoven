@@ -83,7 +83,7 @@ public class MinIO implements Storage {
                                     .method(Method.GET)
                                     .bucket(storage.getBucket())
                                     .object(fileName)
-                                    .expiry(15, TimeUnit.MINUTES)
+                                    .expiry(2, TimeUnit.HOURS)
                                     .build());
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |

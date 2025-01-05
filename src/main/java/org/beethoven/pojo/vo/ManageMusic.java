@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 public class ManageMusic {
 
-    public String id;
+    public Long id;
 
     public String name;
 

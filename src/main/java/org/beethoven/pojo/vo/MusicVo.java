@@ -15,11 +15,11 @@ import org.beethoven.lib.annotation.SplicingValue;
 @Data
 public class MusicVo {
 
-    public String id;
+    public Long id;
 
     public String name;
 
-//    @SplicingValue(Constant.ENDPOINT_PREFIX)
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     public String link;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)

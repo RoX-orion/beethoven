@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 public class AccountVo {
 
-    private Integer id;
+    private Long id;
 
     private String username;
 

@@ -47,7 +47,7 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "music", method = RequestMethod.GET)
-    public ApiResult<List<MusicVo>> getPlaylistMusic(@RequestParam("playlistId") String playlistId,
+    public ApiResult<List<MusicVo>> getPlaylistMusic(@RequestParam("playlistId") Long playlistId,
                                                      @RequestParam(value = "page", required = false) Integer page,
                                                      @RequestParam(value = "size", required = false) Integer size) {
         List<MusicVo> playListMusic = playlistService.getPlaylistMusic(playlistId, page, size);
@@ -56,7 +56,7 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "info", method = RequestMethod.GET)
-    public ApiResult<PlaylistVo> getPlaylistInfo(@RequestParam("playlistId") String playlistId) {
+    public ApiResult<PlaylistVo> getPlaylistInfo(@RequestParam("playlistId") Long playlistId) {
         PlaylistVo playlistVo = playlistService.getPlaylistInfo(playlistId);
 
         return ApiResult.ok(playlistVo);

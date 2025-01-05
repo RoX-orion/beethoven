@@ -6,10 +6,10 @@ spring:
     name: Beethoven
 
   datasource:
-    username: root
+    username: postgres
     password: 123456
-    url: jdbc:mysql://192.168.179.130:3306/beethoven
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://192.168.179.130:5432/postgres
+    driver-class-name: org.postgresql.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       # 初始化时建立物理连接的个数。初始化发生在显示调用 init 方法，或者第一次 getConnection 时

@@ -35,7 +35,7 @@ public class Music {
 
     private String mime;
 
-//    @SplicingValue(Constant.ENDPOINT_PREFIX)
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String ossMusicName;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)

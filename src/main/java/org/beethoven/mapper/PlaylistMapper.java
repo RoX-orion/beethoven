@@ -22,8 +22,8 @@ public interface PlaylistMapper extends BaseMapper<Playlist> {
     List<PlaylistVo> getPlayList(@Param("offset") int offset,
                                  @NotNull @Param("size") Integer size);
 
-    List<MusicVo> getPlaylistMusic(@Param("playlistId") String playlistId,
+    List<MusicVo> getPlaylistMusic(@Param("playlistId") Long playlistId,
                                    @Param("pageParam") PageParam pageParam);
 
-    PlaylistVo getPlaylistInfo(@Param("playlistId") String playlistId);
+    PlaylistVo getPlaylistInfo(@Param("playlistId") Long playlistId);
 }

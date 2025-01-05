@@ -1,9 +1,6 @@
 package org.beethoven.pojo.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.SplicingValue;
@@ -23,8 +20,8 @@ import java.time.LocalDateTime;
 @TableName("account")
 public class Account {
 
-    @TableId
-    private Integer id;
+    @TableId(type = IdType.ASSIGN_ID)
+    private Long id;
 
     private String email;
 

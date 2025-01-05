@@ -86,13 +86,13 @@ public class PlaylistService {
         return ApiResult.ok();
     }
 
-    public List<MusicVo> getPlaylistMusic(String playlistId, Integer page, Integer size) {
+    public List<MusicVo> getPlaylistMusic(Long playlistId, Integer page, Integer size) {
         PageParam pageParam = Helpers.buildPageParam(page, size);
 
         return playlistMapper.getPlaylistMusic(playlistId, pageParam);
     }
 
-    public PlaylistVo getPlaylistInfo(String playlistId) {
+    public PlaylistVo getPlaylistInfo(Long playlistId) {
         return playlistMapper.getPlaylistInfo(playlistId);
     }
 

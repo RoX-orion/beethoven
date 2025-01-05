@@ -10,7 +10,7 @@
             a.username          as      author
         from playlist p
             left join account a on p.creator = a.id
-        limit #{offset}, #{size}
+        limit #{size} offset #{offset};
     </select>
 
     <select id="getPlaylistMusic" resultType="org.beethoven.pojo.vo.MusicVo">
@@ -29,7 +29,7 @@
         where mp.playlist_id = #{playlistId}
         order by mp.music_id
         <if test="pageParam != null">
-            limit #{pageParam.offset}, #{pageParam.offset}
+            limit #{pageParam.offset} offset #{pageParam.offset};
         </if>
     </select>
 

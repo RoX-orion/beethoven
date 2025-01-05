@@ -14,7 +14,7 @@
         from music
         where name like #{key}
            or singer like #{key}
-        limit #{offset}, #{size};
+        limit #{size} offset #{offset};
     </select>
     <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.ManageMusic">
         select
@@ -34,6 +34,6 @@
                 and (name like #{key} or singer like #{key})
             </if>
         </where>
-        limit #{offset}, #{size};
+        limit #{size} offset #{offset};
     </select>
 </mapper>
