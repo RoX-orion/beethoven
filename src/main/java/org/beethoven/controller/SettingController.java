@@ -1,9 +1,10 @@
 package org.beethoven.controller;
 
+import jakarta.annotation.Resource;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Setting;
 import org.beethoven.service.SettingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,19 +21,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("setting")
 public class SettingController {
 
-    private final SettingService settingService;
-
-    @Autowired
-    public SettingController(
-            final SettingService settingService
-    ) {
-        this.settingService = settingService;
-    }
+    @Resource
+    private SettingService settingService;
 
     @RequestMapping(value = "getSetting", method = RequestMethod.GET)
     public ApiResult<Setting> getSetting() {
         Setting setting = settingService.getSetting();
 
         return ApiResult.ok(setting);
+    }
+
+    @RequestMapping(value = "updateSetting", method = RequestMethod.PUT)
+    public ApiResult<Void> updateSetting(@RequestBody Setting setting) {
+        settingService.updateSetting(setting);
+
+        return ApiResult.ok();
     }
 }

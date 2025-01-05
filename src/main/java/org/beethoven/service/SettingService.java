@@ -22,4 +22,9 @@ public class SettingService {
     public Setting getSetting() {
         return settingMapper.selectById(1);
     }
+
+    public void updateSetting(Setting setting) {
+        if (setting.getUserId() == null) return;
+        settingMapper.updateById(setting);
+    }
 }

@@ -51,7 +51,7 @@ public class MusicController {
     }
 
     @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
-    public ApiResult<MusicVo> getMusicInfo(@PathVariable String id) {
+    public ApiResult<MusicVo> getMusicInfo(@PathVariable Long id) {
         MusicVo musicInfo = musicService.getMusicInfo(id);
 
         return ApiResult.ok(musicInfo);

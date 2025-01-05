@@ -221,7 +221,7 @@ public class MusicService {
         return musicMapper.searchMusic(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
     }
 
-    public MusicVo getMusicInfo(String id) {
+    public MusicVo getMusicInfo(Long id) {
         Music music = musicMapper.selectById(id);
         if (music == null) {
             throw new BeethovenException("音乐不存在！");
