@@ -29,6 +29,8 @@ public class Constant {
 
     public static final String COVER_DIR = "cover/";
 
+    public static final String AVATAR_DIR = "avatar/";
+
     public static final String SHARDING_SIZE = "shardingSize";
 
     public static final String DEFAULT_MUSIC_COVER = "defaultMusicCover";
@@ -40,4 +42,12 @@ public class Constant {
     public static final String USER_DIR = System.getProperty("user.dir");
 
     public static final String DEFAULT_STORAGE = StorageProvider.MINIO.name();
+
+    public static class PREFIX {
+        public static final String CONFIG = "config:";
+
+        public static final String GITHUB_CLIENT_SECRET = "oauth2:secret:github";
+
+        public static final String USER_INFO = "user:info:";
+    }
 }

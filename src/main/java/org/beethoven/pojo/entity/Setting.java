@@ -19,7 +19,7 @@ import lombok.Data;
 public class Setting {
 
     @TableId
-    private Integer userId;
+    private Long userId;
 
     @TableField(updateStrategy = FieldStrategy.NOT_EMPTY)
     private Boolean isMute;

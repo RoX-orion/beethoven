@@ -24,4 +24,6 @@ public class AccountVo {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    private String token;
 }
