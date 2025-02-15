@@ -2,6 +2,7 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -27,6 +28,7 @@ public class PlaylistController {
     @Resource
     private PlaylistService playlistService;
 
+    @Permission
     @RequestMapping(value = "getPlaylist", method = RequestMethod.GET)
     public ApiResult<List<PlaylistVo>> getPlayList(PlaylistDTO playlistDTO) {
         List<PlaylistVo> playList = playlistService.getPlayList(playlistDTO);
@@ -41,6 +43,7 @@ public class PlaylistController {
         return ApiResult.ok();
     }
 
+    @Permission
     @RequestMapping(value = "addMusic", method = RequestMethod.POST)
     public ApiResult<String> addMusicToPlaylist(@RequestBody @Valid MusicPlaylistDTO musicPlaylistDTO) {
         return playlistService.addMusicToPlaylist(musicPlaylistDTO);

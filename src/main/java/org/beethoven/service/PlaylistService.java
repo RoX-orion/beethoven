@@ -64,24 +64,26 @@ public class PlaylistService {
         if (!musicMapper.exists(new LambdaQueryWrapper<Music>().eq(Music::getId, musicPlaylistDTO.getMusicId()))) {
             return ApiResult.fail("歌曲不存在！");
         }
-        Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, musicPlaylistDTO.getPlaylistId()));
-        if (Objects.isNull(playlist)) {
-            return ApiResult.fail("歌单不存在！");
-        }
-        if (musicPlaylistMapper.exists(
-                new LambdaQueryWrapper<MusicPlaylist>()
-                        .eq(MusicPlaylist::getMusicId, musicPlaylistDTO.getMusicId())
-                        .eq(MusicPlaylist::getPlaylistId, musicPlaylistDTO.getPlaylistId()))) {
-            return ApiResult.fail("歌单已存在该歌曲！");
-        }
-        MusicPlaylist musicPlaylist = new MusicPlaylist();
-        musicPlaylist.setMusicId(musicPlaylistDTO.getMusicId());
-        musicPlaylist.setPlaylistId(musicPlaylistDTO.getPlaylistId());
+        for (Long playlistId : musicPlaylistDTO.getPlaylistIds()) {
+            Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistId));
+            if (Objects.isNull(playlist)) {
+                return ApiResult.fail("歌单不存在！");
+            }
 
-        musicPlaylistMapper.insert(musicPlaylist);
+            if (!musicPlaylistMapper.exists(
+                    new LambdaQueryWrapper<MusicPlaylist>()
+                            .eq(MusicPlaylist::getMusicId, musicPlaylistDTO.getMusicId())
+                            .eq(MusicPlaylist::getPlaylistId, playlistId))) {
+                MusicPlaylist musicPlaylist = new MusicPlaylist();
+                musicPlaylist.setMusicId(musicPlaylistDTO.getMusicId());
+                musicPlaylist.setPlaylistId(playlistId);
 
-        playlist.setMusicCount(playlist.getMusicCount() + 1);
-        playlistMapper.updateById(playlist);
+                musicPlaylistMapper.insert(musicPlaylist);
+
+                playlist.setMusicCount(playlist.getMusicCount() + 1);
+                playlistMapper.updateById(playlist);
+            }
+        }
 
         return ApiResult.ok();
     }

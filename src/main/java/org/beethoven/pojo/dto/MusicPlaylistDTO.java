@@ -1,6 +1,7 @@
 package org.beethoven.pojo.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -14,9 +15,9 @@ import lombok.Data;
 @Data
 public class MusicPlaylistDTO {
 
-    @NotBlank(message = "音乐不能为空!")
+    @NotNull(message = "音乐不能为空!")
     private Long musicId;
 
-    @NotBlank(message = "歌单不能为空!")
-    private Long playlistId;
+    @NotEmpty(message = "歌单不能为空!")
+    private Long[] playlistIds;
 }
