@@ -18,11 +18,11 @@ public class Constant {
     private Constant() {}
 
     public static final List<String> SUPPORT_AUDIO_MIME = Lists.newArrayList(
-            "audio/mpeg", "audio/wav", "audio/aac"
+            "audio/mpeg", "audio/wav", "audio/aac", "audio/vnd.dlna.adts", "audio/webm"
     );
 
     public static final List<String> SUPPORT_IMAGE_MIME = Lists.newArrayList(
-            "image/png", "image/jpeg"
+            "image/png", "image/jpeg", "image/webp"
     );
 
     public static final String MUSIC_DIR = "music/";
