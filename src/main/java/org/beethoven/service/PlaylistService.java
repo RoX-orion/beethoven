@@ -55,6 +55,7 @@ public class PlaylistService {
         playlist.setCreator(authService.getUserId());
         playlist.setTitle(playlistInfo.getTitle());
         playlist.setIntroduction(playlistInfo.getIntroduction());
+        playlist.setAccessible(playlistInfo.getAccessible());
 
         playlistMapper.insert(playlist);
     }
@@ -106,6 +107,7 @@ public class PlaylistService {
         Playlist playlist = new Playlist();
         playlist.setId(playlistDTO.getId());
         playlist.setTitle(playlistDTO.getTitle());
+        playlist.setAccessible(playlistDTO.getAccessible());
         playlist.setIntroduction(playlistDTO.getIntroduction());
 
         playlistMapper.updateById(playlist);

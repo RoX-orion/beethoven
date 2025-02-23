@@ -2,6 +2,7 @@ package org.beethoven.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.beethoven.lib.AuthContext;
 import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.mapper.SettingMapper;
 import org.beethoven.pojo.entity.Setting;
@@ -21,8 +22,11 @@ public class SettingService {
     @Resource
     private SettingMapper settingMapper;
 
+    @Resource
+    private AuthContext authContext;
+
     public Setting getSetting() {
-        return settingMapper.selectById(1);
+        return settingMapper.selectById(authContext.getUserId());
     }
 
     public void updateSetting(Setting setting) {

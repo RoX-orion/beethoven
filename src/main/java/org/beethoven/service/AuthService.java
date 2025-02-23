@@ -177,7 +177,7 @@ public class AuthService {
             }
         }
         redisTemplate.opsForValue().set(Constant.PREFIX.USER_INFO + accountVo.getToken(), mapper.writeValueAsString(accountVo));
-
+        redisTemplate.opsForValue().set(Constant.PREFIX.USER_ID + accountVo.getToken(), String.valueOf(accountVo.getId()));
         return accountVo;
     }
 

@@ -1,5 +1,7 @@
 package org.beethoven.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +17,7 @@ import org.beethoven.lib.exception.MediaException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.MusicMapper;
+import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -74,7 +77,7 @@ public class MusicService {
         music.setSinger(uploadMusicDTO.getSinger().trim());
         music.setSize(musicFile.getSize());
         music.setMime(musicMime);
-        music.setStorage(StorageProvider.QINIU);
+        music.setStorage(StorageProvider.MINIO);
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
@@ -233,8 +236,15 @@ public class MusicService {
         return musicVo;
     }
 
-    public List<ManageMusic> getManageMusicList(@Valid MusicDTO musicDTO) {
+    public PageInfo<List<ManageMusic>> getManageMusicList(@Valid MusicDTO musicDTO) {
         int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
-        return musicMapper.getManageMusicList(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
+        String param = Helpers.buildFuzzySearchParam(musicDTO.getKey());
+        List<ManageMusic> manageMusicList = musicMapper.getManageMusicList(offset, musicDTO.getSize(), param);
+        LambdaQueryWrapper<Music> queryWrapper = new QueryWrapper<Music>().lambda();
+        if (StringUtils.hasText(param)) {
+            queryWrapper = new QueryWrapper<Music>().lambda().like(Music::getName, param).or().like(Music::getSinger, param);
+        }
+        Long total = musicMapper.selectCount(queryWrapper);
+        return PageInfo.result(manageMusicList, total);
     }
 }

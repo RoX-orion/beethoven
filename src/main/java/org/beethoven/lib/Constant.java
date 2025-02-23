@@ -49,5 +49,7 @@ public class Constant {
         public static final String GITHUB_CLIENT_SECRET = "oauth2:secret:github";
 
         public static final String USER_INFO = "user:info:";
+
+        public static final String USER_ID = "user:id:";
     }
 }

@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -58,9 +59,9 @@ public class MusicController {
     }
 
     @RequestMapping("manage/getManageMusicList")
-    public ApiResult<List<ManageMusic>> getManageMusicList(MusicDTO musicDTO) {
-        List<ManageMusic> manageMusicList = musicService.getManageMusicList(musicDTO);
+    public ApiResult<PageInfo<List<ManageMusic>>> getManageMusicList(MusicDTO musicDTO) {
+        PageInfo<List<ManageMusic>> pageInfo = musicService.getManageMusicList(musicDTO);
 
-        return ApiResult.ok(manageMusicList);
+        return ApiResult.ok(pageInfo);
     }
 }

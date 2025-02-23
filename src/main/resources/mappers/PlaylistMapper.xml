@@ -10,6 +10,7 @@
             a.username          as      author
         from playlist p
             left join account a on p.creator = a.id
+        order by id desc
         limit #{size} offset #{offset};
     </select>
 
@@ -41,6 +42,7 @@
             p.music_count,
             p.create_time,
             p.introduction,
+            p.accessible,
             a.username          as      author
         from playlist p
             left join account a on p.creator = a.id

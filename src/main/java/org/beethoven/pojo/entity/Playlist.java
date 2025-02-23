@@ -30,6 +30,10 @@ public class Playlist {
 
     private int musicCount = 0;
 
+    private boolean accessible;
+
+    private Integer sequence;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

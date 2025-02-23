@@ -25,6 +25,8 @@ public class PlaylistVo {
 
     private int musicCount;
 
+    private boolean accessible;
+
     private String introduction;
 
     private LocalDateTime createTime;

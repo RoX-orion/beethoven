@@ -1,6 +1,7 @@
 package org.beethoven.pojo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,4 +27,7 @@ public class PlaylistDTO extends PageDTO {
     private String introduction;
 
     private String cover;
+
+    @NotNull
+    private Boolean accessible;
 }

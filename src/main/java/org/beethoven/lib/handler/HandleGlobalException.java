@@ -3,6 +3,7 @@ package org.beethoven.lib.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.exception.AuthenticationException;
 import org.beethoven.lib.exception.BeethovenException;
+import org.beethoven.lib.exception.MediaException;
 import org.beethoven.pojo.entity.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -71,8 +72,8 @@ public class HandleGlobalException {
     }
 
     @ResponseBody
-    @ExceptionHandler(BeethovenException.class)
-    public ApiResult<String> handleBeethovenException(BeethovenException e) {
+    @ExceptionHandler({BeethovenException.class, MediaException.class})
+    public ApiResult<String> handleBeethovenException(Exception e) {
         e.printStackTrace();
         return ApiResult.build(400, e.getMessage());
     }
