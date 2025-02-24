@@ -32,6 +32,6 @@ public class AuthContext {
             return Long.valueOf(userId);
         }
 
-        throw new RuntimeException();
+        return null;
     }
 }

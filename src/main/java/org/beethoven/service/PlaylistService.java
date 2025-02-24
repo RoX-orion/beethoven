@@ -55,6 +55,7 @@ public class PlaylistService {
         playlist.setCreator(authService.getUserId());
         playlist.setTitle(playlistInfo.getTitle());
         playlist.setIntroduction(playlistInfo.getIntroduction());
+        playlist.setMusicCount(0);
         playlist.setAccessible(playlistInfo.getAccessible());
 
         playlistMapper.insert(playlist);

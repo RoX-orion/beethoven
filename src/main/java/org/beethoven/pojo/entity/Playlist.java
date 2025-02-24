@@ -28,7 +28,7 @@ public class Playlist {
 
     private String cover;
 
-    private int musicCount = 0;
+    private Integer musicCount;
 
     private boolean accessible;
 
