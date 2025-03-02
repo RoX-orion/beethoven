@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -27,6 +28,8 @@ public class PlaylistDTO extends PageDTO {
     private String introduction;
 
     private String cover;
+
+    private MultipartFile coverFile;
 
     @NotNull
     private Boolean accessible;

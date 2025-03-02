@@ -54,7 +54,8 @@ public class MinIO implements Storage {
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException("Upload minio file fail!");
         }
         return response;
     }
@@ -72,7 +73,8 @@ public class MinIO implements Storage {
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException("Download minio file fail!");
         }
     }
 
@@ -89,7 +91,23 @@ public class MinIO implements Storage {
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                 XmlParserException e) {
             log.error(e.getMessage());
-            throw new StorageException("Get file URL fail!");
+            throw new StorageException("Get minio file URL fail!");
+        }
+    }
+
+    @Override
+    public void remove(String fileName) {
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                            .bucket(storage.getBucket())
+                            .object(fileName)
+                            .build()
+            );
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            log.error(e.getMessage());
+            throw new StorageException("Delete minio file fail!");
         }
     }
 }

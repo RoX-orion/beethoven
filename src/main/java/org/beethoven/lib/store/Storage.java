@@ -19,4 +19,6 @@ public interface Storage {
     InputStream download(String fileName, Long start, Long length);
 
     String getURL(String fileName);
+
+    void remove(String fileName);
 }

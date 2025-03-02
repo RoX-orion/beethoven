@@ -117,10 +117,15 @@ public class Helpers {
     }
 
     public static PageParam buildPageParam(Integer page, Integer size) {
-        if (page == null) return null;
+        if (page == null)
+            return null;
+        if (page <= 0)
+            page = 1;
+        if (size == null || size <= 0)
+            size = 15;
         PageParam pageParam = new PageParam();
-        pageParam.setPage(page);
-        pageParam.setOffset(size != null ? (page - 1) * size : (page - 1) * 15);
+        pageParam.setSize(size);
+        pageParam.setOffset((page - 1) * size);
 
         return pageParam;
     }

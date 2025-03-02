@@ -1,6 +1,8 @@
 package org.beethoven.pojo.vo;
 
 import lombok.Data;
+import org.beethoven.lib.Constant;
+import org.beethoven.lib.annotation.SplicingValue;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +23,7 @@ public class PlaylistVo {
 
     private String title;
 
+    @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String cover;
 
     private int musicCount;

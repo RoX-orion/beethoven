@@ -66,7 +66,16 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "updatePlaylist", method = RequestMethod.PUT)
-    public ApiResult<Void> updatePlaylist(@RequestBody @Valid PlaylistDTO playlistDTO) {
+    public ApiResult<Void> updatePlaylist(@Valid PlaylistDTO playlistDTO) {
         return playlistService.updatePlaylist(playlistDTO);
     }
+
+    @RequestMapping(value = "home/playlist", method = RequestMethod.GET)
+    public ApiResult<List<PlaylistVo>> getHomePlaylist(@RequestParam(value = "key", required = false) String key,
+                                                       @RequestParam(value = "page") Integer page,
+                                                       @RequestParam(value = "size") Integer size) {
+        List<PlaylistVo> playlistVoList = playlistService.getHomePlaylist(key, page, size);
+        return ApiResult.ok(playlistVoList);
+    }
+
 }

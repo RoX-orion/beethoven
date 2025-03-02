@@ -58,7 +58,7 @@ public class MusicController {
         return ApiResult.ok(musicInfo);
     }
 
-    @RequestMapping("manage/getManageMusicList")
+    @RequestMapping(value = "manage/getManageMusicList", method = RequestMethod.GET)
     public ApiResult<PageInfo<List<ManageMusic>>> getManageMusicList(MusicDTO musicDTO) {
         PageInfo<List<ManageMusic>> pageInfo = musicService.getManageMusicList(musicDTO);
 

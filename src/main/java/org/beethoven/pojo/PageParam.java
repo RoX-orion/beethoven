@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class PageParam {
 
-    int page;
+    int size;
 
     int offset;
 }

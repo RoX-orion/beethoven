@@ -26,4 +26,7 @@ public interface PlaylistMapper extends BaseMapper<Playlist> {
                                    @Param("pageParam") PageParam pageParam);
 
     PlaylistVo getPlaylistInfo(@Param("playlistId") Long playlistId);
+
+    List<PlaylistVo> getHomePlaylist(@Param("key") String key,
+                                     @Param("pageParam") PageParam pageParam);
 }

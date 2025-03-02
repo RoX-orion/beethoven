@@ -71,4 +71,8 @@ public class StorageContext {
     public String getURL(String fileName) {
         return storage.getURL(fileName);
     }
+
+    public void remove(String fileName) {
+        storage.remove(fileName);
+    }
 }

@@ -7,6 +7,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import org.beethoven.lib.GlobalConfig;
+import org.beethoven.lib.exception.StorageException;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -65,5 +66,10 @@ public class Qiniu implements Storage {
     @Override
     public String getURL(String fileName) {
         return "";
+    }
+
+    @Override
+    public void remove(String fileName) throws StorageException {
+
     }
 }
