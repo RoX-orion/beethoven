@@ -2,6 +2,7 @@ package org.beethoven.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.beethoven.pojo.OAuth2Info;
 import org.beethoven.pojo.dto.OAuth2Login;
@@ -48,5 +49,12 @@ public class AuthController {
     @RequestMapping(value = "oauth/github/hook", method = RequestMethod.POST)
     public void githubHook(@RequestBody Object object) {
         System.out.println("event:" + object);
+    }
+
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    public ApiResult<Void> logout(HttpServletRequest request) {
+        authService.logout(request);
+
+        return ApiResult.ok();
     }
 }

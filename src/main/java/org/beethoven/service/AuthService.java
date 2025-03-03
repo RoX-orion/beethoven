@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import okhttp3.*;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.exception.AuthenticationException;
@@ -15,6 +16,7 @@ import org.beethoven.pojo.entity.Account;
 import org.beethoven.pojo.enums.UserType;
 import org.beethoven.pojo.vo.AccountVo;
 import org.beethoven.util.Helpers;
+import org.beethoven.util.RequestUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -186,5 +188,17 @@ public class AuthService {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
+    public void logout(HttpServletRequest request) {
+        String token = RequestUtil.getToken(request);
+        if (StringUtils.hasText(token)) {
+            this.removeToken(token);
+        }
+    }
+
+    public void removeToken(String token) {
+        redisTemplate.delete(Constant.PREFIX.USER_INFO + token);
+        redisTemplate.delete(Constant.PREFIX.USER_ID + token);
     }
 }
