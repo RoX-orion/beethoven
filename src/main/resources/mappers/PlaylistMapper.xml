@@ -6,10 +6,12 @@
             p.id,
             p.title,
             p.cover,
-            p.music_count,
+            count(mp.music_id)             as      music_count,
             a.username          as      author
         from playlist p
             left join account a on p.creator = a.id
+            left join music_playlist mp on p.id = mp.playlist_id
+        group by p.id, p.title, p.cover, a.username
         order by id desc
         limit #{size} offset #{offset};
     </select>
@@ -53,14 +55,16 @@
             p.id,
             p.title,
             p.cover,
-            p.music_count,
+            count(mp.music_id)      as       p.music_count,
             a.username as author
         from playlist p
-        left join account a on p.creator = a.id
+            left join account a on p.creator = a.id
+            left join music_playlist mp on p.id = mp.playlist_id
         <where>
             and p.accessible = true
             <if test="key != null and key != ''">and (p.title like #{key} or a.username like #{key})</if>
         </where>
+        group by p.id, p.title, p.cover, a.username
         order by id desc
         <if test="pageParam != null">
             limit #{pageParam.size} offset #{pageParam.offset};

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,6 +98,8 @@ public class MinIO implements Storage {
 
     @Override
     public void remove(String fileName) {
+        if (!StringUtils.hasText(fileName))
+            return;
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                             .bucket(storage.getBucket())

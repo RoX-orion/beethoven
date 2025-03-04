@@ -91,7 +91,7 @@ public class PlaylistService {
 
                 musicPlaylistMapper.insert(musicPlaylist);
 
-                playlist.setMusicCount(playlist.getMusicCount() + 1);
+//                playlist.setMusicCount(playlist.getMusicCount() + 1);
                 playlistMapper.updateById(playlist);
             }
         }

@@ -1,5 +1,6 @@
 package org.beethoven.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
@@ -54,25 +55,29 @@ public class AppService {
 
     @Transactional
     public void updateMusicConfig(MusicConfig musicConfig) {
+        Config shardingSize = configMapper.selectOne(new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.SHARDING_SIZE));
+        shardingSize = shardingSize == null ? new Config() : shardingSize;
+        shardingSize.setConfigKey(Constant.SHARDING_SIZE);
+        shardingSize.setConfigValue(musicConfig.getShardingSize() == null ? String.valueOf(Constant.DEFAULT_SHARDING_SIZE) : String.valueOf(musicConfig.getShardingSize()));
+        configMapper.insertOrUpdate(shardingSize);
+
         MultipartFile defaultMusicCoverFile = musicConfig.getDefaultMusicCoverFile();
         if (defaultMusicCoverFile != null) {
-            String fileName = Helpers.buildOssFileName(defaultMusicCoverFile.getOriginalFilename());
-            Config defaultMusicCoverConfig = new Config();
+            String fileName = Constant.SYSTEM + Helpers.buildOssFileName(defaultMusicCoverFile.getOriginalFilename());
+            Config defaultMusicCoverConfig = configMapper.selectOne(new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.DEFAULT_MUSIC_COVER));
+            defaultMusicCoverConfig = defaultMusicCoverConfig == null ? new Config() : defaultMusicCoverConfig;
+            String oldFileName = defaultMusicCoverConfig.getConfigValue();
             defaultMusicCoverConfig.setConfigKey(Constant.DEFAULT_MUSIC_COVER);
             defaultMusicCoverConfig.setConfigValue(fileName);
             configMapper.insertOrUpdate(defaultMusicCoverConfig);
 
             try {
                 storageContext.upload(defaultMusicCoverFile.getInputStream(), fileName);
+                storageContext.remove(oldFileName);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        Config shardingSize = new Config();
-        shardingSize.setConfigKey(Constant.SHARDING_SIZE);
-        shardingSize.setConfigValue(String.valueOf(musicConfig.getShardingSize()));
-        configMapper.insertOrUpdate(shardingSize);
 
         initGlobal.run(null);
     }

@@ -18,5 +18,5 @@ public class MusicConfig {
 
     private String defaultMusicCover;
 
-    private int shardingSize;
+    private Integer shardingSize;
 }

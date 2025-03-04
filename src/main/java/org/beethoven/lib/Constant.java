@@ -31,6 +31,8 @@ public class Constant {
 
     public static final String AVATAR_DIR = "avatar/";
 
+    public static final String SYSTEM = "system/";
+
     public static final String SHARDING_SIZE = "shardingSize";
 
     public static final String DEFAULT_MUSIC_COVER = "defaultMusicCover";
