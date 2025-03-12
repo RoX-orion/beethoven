@@ -6,8 +6,8 @@
             p.id,
             p.title,
             p.cover,
-            count(mp.music_id)             as      music_count,
-            a.username          as      author
+            count(mp.music_id)            as      music_count,
+            a.username                    as      author
         from playlist p
             left join account a on p.creator = a.id
             left join music_playlist mp on p.id = mp.playlist_id
@@ -55,8 +55,8 @@
             p.id,
             p.title,
             p.cover,
-            count(mp.music_id)      as       p.music_count,
-            a.username as author
+            count(mp.music_id)      as       music_count,
+            a.username              as       author
         from playlist p
             left join account a on p.creator = a.id
             left join music_playlist mp on p.id = mp.playlist_id

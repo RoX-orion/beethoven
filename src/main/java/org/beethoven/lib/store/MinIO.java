@@ -1,5 +1,6 @@
 package org.beethoven.lib.store;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
@@ -29,6 +30,9 @@ public class MinIO implements Storage {
 
     private MinioClient minioClient = null;
     private org.beethoven.pojo.entity.Storage storage;
+
+    @NacosValue(value = "${minio.direct:true}", autoRefreshed = true)
+    private boolean directLink;
 
     @Override
     public void init() {
@@ -81,18 +85,22 @@ public class MinIO implements Storage {
 
     @Override
     public String getURL(String fileName) {
-        try {
-            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-                                    .method(Method.GET)
-                                    .bucket(storage.getBucket())
-                                    .object(fileName)
-                                    .expiry(2, TimeUnit.HOURS)
-                                    .build());
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                XmlParserException e) {
-            log.error(e.getMessage());
-            throw new StorageException("Get minio file URL fail!");
+        if (directLink) {
+            return GlobalConfig.endpoint + storage.getBucket() + "/" + fileName;
+        } else {
+            try {
+                return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                        .method(Method.GET)
+                        .bucket(storage.getBucket())
+                        .object(fileName)
+                        .expiry(2, TimeUnit.HOURS)
+                        .build());
+            } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                     InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                     XmlParserException e) {
+                log.error(e.getMessage());
+                throw new StorageException("Get minio file URL fail!");
+            }
         }
     }
 
