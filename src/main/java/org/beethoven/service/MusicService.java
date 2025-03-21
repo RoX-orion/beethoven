@@ -17,11 +17,13 @@ import org.beethoven.lib.exception.MediaException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.MusicMapper;
+import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Music;
+import org.beethoven.pojo.entity.MusicPlaylist;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.ManageMusic;
 import org.beethoven.pojo.vo.MusicVo;
@@ -53,6 +55,9 @@ public class MusicService {
 
     @Resource
     private MusicMapper musicMapper;
+
+    @Resource
+    private MusicPlaylistMapper musicPlaylistMapper;
 
     @Resource
     private StorageContext storageContext;
@@ -246,5 +251,23 @@ public class MusicService {
         }
         Long total = musicMapper.selectCount(queryWrapper);
         return PageInfo.result(manageMusicList, total);
+    }
+
+    @Transactional
+    public ApiResult<String> deleteMusic(Long musicId) {
+        Music music = musicMapper.selectById(musicId);
+        if (music == null) {
+            return ApiResult.fail("Music is not exist!");
+        }
+
+        musicMapper.deleteById(musicId);
+        musicPlaylistMapper.delete(
+                new LambdaQueryWrapper<MusicPlaylist>().eq(MusicPlaylist::getMusicId, musicId)
+        );
+
+        storageContext.remove(music.getOssMusicName());
+        storageContext.remove(music.getOssMusicName());
+
+        return ApiResult.ok();
     }
 }

@@ -64,4 +64,9 @@ public class MusicController {
 
         return ApiResult.ok(pageInfo);
     }
+
+    @RequestMapping(value = "manage/deleteMusic/{musicId}", method = RequestMethod.DELETE)
+    public ApiResult<String> deleteMusic(@PathVariable("musicId") Long musicId) {
+        return musicService.deleteMusic(musicId);
+    }
 }
