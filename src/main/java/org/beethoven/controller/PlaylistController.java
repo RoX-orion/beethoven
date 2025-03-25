@@ -78,4 +78,8 @@ public class PlaylistController {
         return ApiResult.ok(playlistVoList);
     }
 
+    @RequestMapping(value = "removeMusic", method = RequestMethod.DELETE)
+    public ApiResult<Void> removeMusic() {
+        return ApiResult.ok();
+    }
 }

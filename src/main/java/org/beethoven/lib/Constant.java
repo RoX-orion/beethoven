@@ -18,7 +18,8 @@ public class Constant {
     private Constant() {}
 
     public static final List<String> SUPPORT_AUDIO_MIME = Lists.newArrayList(
-            "audio/mpeg", "audio/wav", "audio/aac", "audio/vnd.dlna.adts", "audio/webm"
+            "audio/mpeg", "audio/wav", "audio/aac",
+            "audio/vnd.dlna.adts", "audio/webm", "audio/x-m4a"
     );
 
     public static final List<String> SUPPORT_IMAGE_MIME = Lists.newArrayList(

@@ -93,6 +93,8 @@ public class PlaylistService {
 
 //                playlist.setMusicCount(playlist.getMusicCount() + 1);
                 playlistMapper.updateById(playlist);
+            } else {
+                return ApiResult.fail("歌曲在歌单中已存在!");
             }
         }
 
