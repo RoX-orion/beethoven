@@ -3,6 +3,7 @@ package org.beethoven.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.beethoven.lib.AuthContext;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
@@ -53,6 +54,9 @@ public class PlaylistService {
 
     @Resource
     private StorageContext storageContext;
+
+    @Resource
+    private AuthContext authContext;
 
     public List<PlaylistVo> getPlayList(PlaylistDTO playlistDTO) {
         int offset = (playlistDTO.getPage() - 1) * playlistDTO.getSize();
@@ -145,5 +149,15 @@ public class PlaylistService {
         PageParam pageParam = Helpers.buildPageParam(page, size);
         key = StringUtils.hasText(key) ? Helpers.buildFuzzySearchParam(key) : null;
         return playlistMapper.getHomePlaylist(key, pageParam);
+    }
+
+    public ApiResult<Void> getPlaylist() {
+        Long userId = authContext.getUserId();
+        if (userId != null) {
+
+        } else {
+
+        }
+        return null;
     }
 }

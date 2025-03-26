@@ -4,8 +4,11 @@ project(beethoven C)
 project(BeethovenLib VERSION 0.1.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 
-set(FFMPEG_INCLUDE_DIR "/usr/include/x86_64-linux-gnu")
-set(FFMPEG_LIB_DIR "/usr/lib/x86_64-linux-gnu")
+set(FFMPEG_INCLUDE_DIR "/usr/include/x86_64-linux-gnu" "/usr/include/ffmpeg")
+set(FFMPEG_LIB_DIR "/usr/lib/x86_64-linux-gnu" "usr/lib64")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED libavformat libavcodec libavutil libswscale)
+
 find_library(AVFORMAT_LIB avformat PATHS ${FFMPEG_LIB_DIR})
 find_library(AVCODEC_LIB avcodec PATHS ${FFMPEG_LIB_DIR})
 find_library(AVUTIL_LIB avutil PATHS ${FFMPEG_LIB_DIR})
@@ -23,4 +26,11 @@ target_link_libraries(BeethovenLib PRIVATE
     ${AVFORMAT_LIB}
     ${AVCODEC_LIB}
     ${AVUTIL_LIB}
+	${FFMPEG_LIB_DIR/libavformat}
+	-lavformat
+	-lavcodec
+	-lavutil
+	-lswscale
+	-lz
+	-lm
 )

@@ -22,6 +22,8 @@ public class ManageMusic {
 
     public String name;
 
+    public String album;
+
     @SplicingValue(Constant.ENDPOINT_PREFIX)
     public String link;
 

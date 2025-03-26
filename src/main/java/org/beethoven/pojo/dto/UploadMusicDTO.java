@@ -22,6 +22,8 @@ public class UploadMusicDTO {
     @NotNull
     private MultipartFile cover;
 
+    private MultipartFile video;
+
     @NotBlank
     private String name;
 
