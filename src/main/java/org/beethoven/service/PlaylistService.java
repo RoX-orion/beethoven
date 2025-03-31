@@ -1,6 +1,7 @@
 package org.beethoven.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.beethoven.lib.AuthContext;
@@ -58,9 +59,13 @@ public class PlaylistService {
     @Resource
     private AuthContext authContext;
 
-    public List<PlaylistVo> getPlayList(PlaylistDTO playlistDTO) {
+    public List<PlaylistVo> getSelfPlayList(PlaylistDTO playlistDTO) {
+        Long userId = authContext.getUserId();
+        if (userId == null) {
+            return Lists.newArrayList();
+        }
         int offset = (playlistDTO.getPage() - 1) * playlistDTO.getSize();
-        return playlistMapper.getPlayList(offset, playlistDTO.getSize());
+        return playlistMapper.getSelfPlayList(offset, playlistDTO.getSize(), userId);
     }
 
     public void addPlaylist(@Valid PlaylistDTO playlistInfo) {

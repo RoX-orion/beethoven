@@ -19,8 +19,9 @@ import java.util.List;
  */
 
 public interface PlaylistMapper extends BaseMapper<Playlist> {
-    List<PlaylistVo> getPlayList(@Param("offset") int offset,
-                                 @NotNull @Param("size") Integer size);
+    List<PlaylistVo> getSelfPlayList(@Param("offset") int offset,
+                                     @NotNull @Param("size") Integer size,
+                                     @Param("userId") Long userId);
 
     List<MusicVo> getPlaylistMusic(@Param("playlistId") Long playlistId,
                                    @Param("pageParam") PageParam pageParam);

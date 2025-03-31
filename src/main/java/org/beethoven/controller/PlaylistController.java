@@ -30,8 +30,8 @@ public class PlaylistController {
 
     @Permission
     @RequestMapping(value = "getPlaylist", method = RequestMethod.GET)
-    public ApiResult<List<PlaylistVo>> getPlayList(PlaylistDTO playlistDTO) {
-        List<PlaylistVo> playList = playlistService.getPlayList(playlistDTO);
+    public ApiResult<List<PlaylistVo>> getSelfPlayList(PlaylistDTO playlistDTO) {
+        List<PlaylistVo> playList = playlistService.getSelfPlayList(playlistDTO);
 
         return ApiResult.ok(playList);
     }
