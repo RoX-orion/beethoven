@@ -78,8 +78,9 @@ public class PlaylistController {
         return ApiResult.ok(playlistVoList);
     }
 
-    @RequestMapping(value = "removeMusic", method = RequestMethod.DELETE)
-    public ApiResult<Void> removeMusic() {
-        return ApiResult.ok();
+    @RequestMapping(value = "removeMusic/{playlistId}/{musicId}", method = RequestMethod.DELETE)
+    public ApiResult<String> removeMusic(@PathVariable("playlistId") Long playlistId,
+                                         @PathVariable("musicId") Long musicId) {
+        return playlistService.removeMusic(playlistId, musicId);
     }
 }

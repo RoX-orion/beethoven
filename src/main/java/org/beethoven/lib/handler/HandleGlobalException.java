@@ -50,7 +50,7 @@ public class HandleGlobalException {
     @ExceptionHandler(AuthenticationException.class)
     public ApiResult<String> error(AuthenticationException e) {
         log.error(e.getMessage());
-        return ApiResult.expired("登录过期");
+        return ApiResult.expired(HttpStatus.UNAUTHORIZED.getReasonPhrase());
     }
 
     @ResponseBody

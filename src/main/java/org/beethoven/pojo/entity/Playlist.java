@@ -20,7 +20,7 @@ public class Playlist {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    private Integer creator;
+    private Long creator;
 
     private String title;
 

@@ -58,10 +58,6 @@ public class AuthService {
     @Resource
     private SettingService settingService;
 
-    public Integer getUserId() {
-        return 1;
-    }
-
     public OAuth2Info getOAuth2Info(UserType userType) throws JsonProcessingException {
         if (UserType.GITHUB == userType) {
             String value = redisTemplate.opsForValue().get(Constant.PREFIX.CONFIG + "oauth2Info");

@@ -6,21 +6,21 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.beethoven.lib.AuthContext;
 import org.beethoven.lib.Constant;
+import org.beethoven.lib.exception.AuthenticationException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.mapper.PlaylistMapper;
+import org.beethoven.mapper.UserPlaylistMapper;
 import org.beethoven.pojo.PageParam;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
-import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.entity.Music;
-import org.beethoven.pojo.entity.MusicPlaylist;
-import org.beethoven.pojo.entity.Playlist;
+import org.beethoven.pojo.entity.*;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.util.Helpers;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -51,7 +51,7 @@ public class PlaylistService {
     private MusicPlaylistMapper musicPlaylistMapper;
 
     @Resource
-    private AuthService authService;
+    private UserPlaylistMapper userPlaylistMapper;
 
     @Resource
     private StorageContext storageContext;
@@ -68,15 +68,25 @@ public class PlaylistService {
         return playlistMapper.getSelfPlayList(offset, playlistDTO.getSize(), userId);
     }
 
+    @Transactional
     public void addPlaylist(@Valid PlaylistDTO playlistInfo) {
+        Long userId = authContext.getUserId();
+        if (userId == null)
+            throw new AuthenticationException("Get null userId");
         Playlist playlist = new Playlist();
-        playlist.setCreator(authService.getUserId());
+        playlist.setCreator(userId);
         playlist.setTitle(playlistInfo.getTitle());
         playlist.setIntroduction(playlistInfo.getIntroduction());
         playlist.setMusicCount(0);
         playlist.setAccessible(playlistInfo.getAccessible());
 
         playlistMapper.insert(playlist);
+
+        UserPlaylist userPlaylist = new UserPlaylist();
+        userPlaylist.setAccountId(userId);
+        userPlaylist.setPlaylistId(playlist.getId());
+
+        userPlaylistMapper.insert(userPlaylist);
     }
 
     @Transactional
@@ -164,5 +174,30 @@ public class PlaylistService {
 
         }
         return null;
+    }
+
+    public ApiResult<String> removeMusic(Long playlistId, Long musicId) {
+        Long userId = authContext.getUserId();
+        if (userId == null) {
+            return ApiResult.expired(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
+        MusicPlaylist musicPlaylist = musicPlaylistMapper.selectOne(
+                new LambdaQueryWrapper<MusicPlaylist>()
+                        .eq(MusicPlaylist::getPlaylistId, playlistId)
+                        .eq(MusicPlaylist::getMusicId, musicId)
+        );
+        if (musicPlaylist == null) {
+            return ApiResult.fail("The record does not exist");
+        }
+        Playlist playlist = playlistMapper.selectById(musicPlaylist.getPlaylistId());
+        if (playlist == null) {
+            return ApiResult.fail("The playlist does not exist");
+        }
+        if (!playlist.getCreator().equals(userId)) {
+            return ApiResult.fail("Cannot operate playlists that do not belong to you");
+        }
+        musicPlaylistMapper.deleteById(musicPlaylist.getId());
+
+        return ApiResult.ok();
     }
 }
