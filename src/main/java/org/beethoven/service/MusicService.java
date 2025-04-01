@@ -270,4 +270,97 @@ public class MusicService {
 
         return ApiResult.ok();
     }
+
+    public ApiResult<String> updateMusic(UploadMusicDTO uploadMusicDTO) {
+        if (uploadMusicDTO.getMusicId() == null)
+            return ApiResult.fail("Music id can't be null!");
+        if (!StringUtils.hasText(uploadMusicDTO.getName()) || !StringUtils.hasText(uploadMusicDTO.getSinger()))
+            return ApiResult.fail("Music name or Singer can't be null!");
+        Music music = musicMapper.selectById(uploadMusicDTO.getMusicId());
+        if (music == null)
+            return ApiResult.fail("Music is not exist!");
+        /*
+        music.setSize(musicFile.getSize());
+        music.setMime(musicMime);
+        music.setStorage(StorageProvider.MINIO);
+        music.setShardingSize(GlobalConfig.shardingSize);
+        musicMapper.insert(music);
+
+        int i;
+        byte[] buffer = new byte[4096];
+        String fileName = Constant.USER_DIR + ossMusicName;
+        File tempFile = new File(fileName);
+        if (!tempFile.exists()) {
+            try {
+                File parentFile = tempFile.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+                tempFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        BufferedInputStream bufferedInputStream = null;
+        try(InputStream musicInputStream = musicFile.getInputStream();
+            InputStream coverInputStream = coverFile.getInputStream();
+            FileOutputStream outputStream = new FileOutputStream(fileName)) {
+            while ((i = musicInputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, i);
+            }
+            int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
+            if (duration <= 0) {
+                log.error("parse music info error, file name: {}", musicFile.getOriginalFilename());
+                throw new MediaException("parse music info error!");
+            }
+            music.setDuration(duration);
+
+            bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
+            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
+            if (uploadMusicResponse.isOk) {
+                music.setHash(uploadMusicResponse.hash);
+                music.setOssMusicName(ossMusicName);
+            }
+
+            StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
+            if (uploadCoverResponse.isOk) {
+                music.setOssCoverName(ossCoverName);
+            }
+            musicMapper.updateById(music);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            File file = new File(fileName);
+            if (file.exists()) {
+                file.delete();
+            }
+            if (bufferedInputStream != null) {
+                try {
+                    bufferedInputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+         */
+        MultipartFile musicFile = uploadMusicDTO.getMusic();
+        MultipartFile coverFile = uploadMusicDTO.getCover();
+        String musicMime = musicFile.getContentType();
+        if (!FileUtil.checkAudioMime(musicMime)) {
+            return ApiResult.fail(String.format("music file content type[%s] not support!", musicMime));
+        }
+        String coverMime = coverFile.getContentType();
+        if (!FileUtil.checkImageMime(coverMime)) {
+            return ApiResult.fail(String.format("cover file content type[%s] not support!", coverMime));
+        }
+        String ossMusicName = Constant.MUSIC_DIR + Helpers.buildOssFileName(musicFile.getOriginalFilename());
+        String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
+        if (StringUtils.hasText(uploadMusicDTO.getAlbum()))
+            music.setAlbum(uploadMusicDTO.getAlbum().trim());
+        music.setName(uploadMusicDTO.getName().trim());
+        music.setSinger(uploadMusicDTO.getSinger().trim());
+
+        return ApiResult.ok();
+    }
 }

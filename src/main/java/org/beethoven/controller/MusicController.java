@@ -69,4 +69,9 @@ public class MusicController {
     public ApiResult<String> deleteMusic(@PathVariable("musicId") Long musicId) {
         return musicService.deleteMusic(musicId);
     }
+
+    @RequestMapping(value = "manage/updateMusic", method = RequestMethod.PUT)
+    public ApiResult<String> updateMusic(UploadMusicDTO uploadMusicDTO) {
+        return musicService.updateMusic(uploadMusicDTO);
+    }
 }

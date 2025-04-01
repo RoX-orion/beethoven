@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +77,13 @@ public class HandleGlobalException {
     public ApiResult<String> handleBeethovenException(Exception e) {
         e.printStackTrace();
         return ApiResult.build(400, e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ApiResult<String> noResourceFoundException(NoResourceFoundException e) {
+        e.printStackTrace();
+        return ApiResult.fail(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name());
     }
 
     @ResponseBody

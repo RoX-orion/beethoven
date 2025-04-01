@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class UploadMusicDTO {
 
+    private Long musicId;
+
     @NotNull
     private MultipartFile music;
 
