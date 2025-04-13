@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.andre</groupId>
     <artifactId>beethoven-music</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>Beethoven-Music</name>
     <description>Beethoven Music</description>
 

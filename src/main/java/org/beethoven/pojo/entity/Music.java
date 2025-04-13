@@ -2,7 +2,6 @@ package org.beethoven.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import org.beethoven.pojo.enums.StorageProvider;
 
 import java.time.LocalDateTime;
 
@@ -29,21 +28,13 @@ public class Music {
 
     private int duration;
 
-    private long size;
-
-    private String mime;
-
     private Long musicFileId;
 
     private Long coverFileId;
 
-//    private String state;
-
     private String hash;
 
     private String sha;
-
-    private StorageProvider storage;
 
     private int shardingSize;
 

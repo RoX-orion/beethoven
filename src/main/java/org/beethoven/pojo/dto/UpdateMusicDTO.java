@@ -6,20 +6,21 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Copyright (c) 2024 Andre Lina. All rights reserved.
+ * Copyright (c) 2025 Andre Lina. All rights reserved.
  *
  * @description:
  * @author: Andre Lina
- * @date: 2024-11-02
+ * @date: 2025-04-13
  */
 
 @Data
-public class UploadMusicDTO {
+public class UpdateMusicDTO {
 
     @NotNull
+    private Long musicId;
+
     private MultipartFile music;
 
-    @NotNull
     private MultipartFile cover;
 
     private MultipartFile video;

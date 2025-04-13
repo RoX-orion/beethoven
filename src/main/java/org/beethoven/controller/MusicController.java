@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.ManageMusic;
@@ -71,7 +72,7 @@ public class MusicController {
     }
 
     @RequestMapping(value = "manage/updateMusic", method = RequestMethod.PUT)
-    public ApiResult<String> updateMusic(UploadMusicDTO uploadMusicDTO) {
-        return musicService.updateMusic(uploadMusicDTO);
+    public ApiResult<String> updateMusic(@Valid UpdateMusicDTO updateMusicDTO) {
+        return musicService.updateMusic(updateMusicDTO);
     }
 }

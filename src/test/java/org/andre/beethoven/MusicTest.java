@@ -6,7 +6,6 @@ import jakarta.annotation.Resource;
 import org.beethoven.BeethovenApplication;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.pojo.entity.Music;
-import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.service.MusicService;
 import org.beethoven.util.Helpers;
 import org.junit.Test;
@@ -72,9 +71,6 @@ public class MusicTest {
         music.setName("test");
         music.setAlbum("album");
         music.setSinger("lizhi");
-        music.setSize(123456);
-        music.setMime("abc");
-        music.setStorage(StorageProvider.QINIU);
         musicMapper.insert(music);
     }
 }
