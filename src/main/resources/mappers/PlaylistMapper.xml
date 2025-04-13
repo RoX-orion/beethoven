@@ -24,13 +24,15 @@
             m.name,
             m.singer,
             m.duration,
-            m.size,
             m.album,
-            m.mime,
-            m.oss_music_name        as      link,
-            m.oss_cover_name        as      cover
+            fim.size,
+            fim.mime,
+            fim.filename          as          link,
+            fic.filename          as          cover
         from music_playlist mp
-        inner join music m on mp.music_id = m.id
+            inner join music m on mp.music_id = m.id
+            left join file_info fim on m.music_file_id = fim.id
+            left join file_info fic on m.cover_file_id = fic.id
         where mp.playlist_id = #{playlistId}
         order by mp.music_id
         <if test="pageParam != null">

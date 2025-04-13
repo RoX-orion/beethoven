@@ -1,8 +1,11 @@
 package org.beethoven.util;
 
+import jakarta.xml.bind.DatatypeConverter;
 import org.beethoven.pojo.PageParam;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -81,8 +84,12 @@ public class Helpers {
         return result;
     }
 
-    public static byte[] sha1(byte[] ...data) {
-        return sha("SHA").digest( concat(data));
+    public static byte[] SHA1(byte[] ...data) {
+        return sha("SHA").digest(concat(data));
+    }
+
+    public static byte[] SHA256(byte[] ...data) {
+        return sha("SHA-256").digest(Helpers.concat(data));
     }
 
     public static String bytesToHex(byte[] bytes) {
@@ -128,6 +135,23 @@ public class Helpers {
         pageParam.setOffset((page - 1) * size);
 
         return pageParam;
+    }
+
+    public static String checksum(InputStream inputStream) {
+        byte[] hash;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            int i;
+            while ((i = inputStream.read(buffer)) != -1) {
+                digest.update(buffer, 0, i);
+            }
+            hash = digest.digest();
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        // 将 hash 转为十六进制字符串
+        return DatatypeConverter.printHexBinary(hash).toLowerCase();
     }
 
 //    public static String buildFullOssLink(String uri) {

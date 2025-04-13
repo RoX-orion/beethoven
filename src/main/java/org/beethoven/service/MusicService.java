@@ -16,12 +16,14 @@ import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.lib.exception.MediaException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
+import org.beethoven.mapper.FileInfoMapper;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.MusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.entity.FileInfo;
 import org.beethoven.pojo.entity.Music;
 import org.beethoven.pojo.entity.MusicPlaylist;
 import org.beethoven.pojo.enums.StorageProvider;
@@ -62,6 +64,9 @@ public class MusicService {
     @Resource
     private StorageContext storageContext;
 
+    @Resource
+    private FileInfoMapper fileInfoMapper;
+
     @Transactional
     public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) {
         MultipartFile musicFile = uploadMusicDTO.getMusic();
@@ -80,9 +85,6 @@ public class MusicService {
         music.setName(uploadMusicDTO.getName().trim());
         music.setAlbum(uploadMusicDTO.getAlbum().trim());
         music.setSinger(uploadMusicDTO.getSinger().trim());
-        music.setSize(musicFile.getSize());
-        music.setMime(musicMime);
-        music.setStorage(StorageProvider.MINIO);
         music.setShardingSize(GlobalConfig.shardingSize);
         musicMapper.insert(music);
 
@@ -117,16 +119,35 @@ public class MusicService {
             music.setDuration(duration);
 
             bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
+            FileInfo musicFileInfo = new FileInfo();
+            musicFileInfo.setOriginalFilename(musicFile.getOriginalFilename());
+            musicFileInfo.setFilename(ossMusicName);
+            musicFileInfo.setSize(musicFile.getSize());
+            musicFileInfo.setMime(musicMime);
+            musicFileInfo.setChecksum(Helpers.checksum(bufferedInputStream));
+            musicFileInfo.setStorage(StorageProvider.MINIO);
+
+            FileInfo coverFileInfo = new FileInfo();
+            coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
+            coverFileInfo.setFilename(ossCoverName);
+            coverFileInfo.setSize(coverFile.getSize());
+            coverFileInfo.setMime(coverMime);
+            coverFileInfo.setChecksum(Helpers.checksum(coverInputStream));
+            coverFileInfo.setStorage(StorageProvider.MINIO);
+
+            music.setMusicFileId(musicFileInfo.getId());
+            music.setCoverFileId(coverFileInfo.getId());
             StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
             if (uploadMusicResponse.isOk) {
-                music.setHash(uploadMusicResponse.hash);
-                music.setOssMusicName(ossMusicName);
+                musicFileInfo.setHash(uploadMusicResponse.hash);
             }
 
             StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
             if (uploadCoverResponse.isOk) {
-                music.setOssCoverName(ossCoverName);
+                coverFileInfo.setHash(uploadCoverResponse.hash);
             }
+            fileInfoMapper.insert(musicFileInfo);
+            fileInfoMapper.insert(coverFileInfo);
             musicMapper.updateById(music);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -236,8 +257,12 @@ public class MusicService {
         }
         MusicVo musicVo = new MusicVo();
         BeanUtils.copyProperties(music, musicVo);
-        musicVo.link = music.getOssMusicName();
-        musicVo.cover = music.getOssCoverName();
+        FileInfo musicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
+        if (musicFileInfo != null)
+            musicVo.link = musicFileInfo.getFilename();
+        FileInfo coverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
+        if (coverFileInfo != null)
+            musicVo.cover = coverFileInfo.getFilename();
         return musicVo;
     }
 
@@ -264,9 +289,12 @@ public class MusicService {
         musicPlaylistMapper.delete(
                 new LambdaQueryWrapper<MusicPlaylist>().eq(MusicPlaylist::getMusicId, musicId)
         );
-
-        storageContext.remove(music.getOssMusicName());
-        storageContext.remove(music.getOssMusicName());
+        FileInfo musicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
+        if (musicFileInfo != null)
+            storageContext.remove(musicFileInfo.getFilename());
+        FileInfo coverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
+        if (coverFileInfo != null)
+            storageContext.remove(coverFileInfo.getFilename());
 
         return ApiResult.ok();
     }

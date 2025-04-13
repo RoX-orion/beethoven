@@ -3,15 +3,17 @@
 <mapper namespace="org.beethoven.mapper.MusicMapper">
     <select id="searchMusic" resultType="org.beethoven.pojo.vo.MusicVo">
         select
-            id,
+            m.id,
             name,
             singer,
             duration,
-            size,
-            mime,
-            oss_music_name          as          link,
-            oss_cover_name          as          cover
-        from music
+            fim.size,
+            fim.mime,
+            fim.filename          as          link,
+            fic.filename          as          cover
+        from music m
+            left join file_info fim on m.music_file_id = fim.id
+            left join file_info fic on m.cover_file_id = fic.id
         where name like #{key}
            or singer like #{key}
         order by id desc
@@ -19,18 +21,20 @@
     </select>
     <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.ManageMusic">
         select
-            id,
+            m.id,
             album,
             name,
             singer,
             duration,
-            size,
-            mime,
-            oss_music_name          as          link,
-            oss_cover_name          as          cover,
-            create_time,
-            update_time
-        from music
+            fim.size,
+            fim.mime,
+            fim.filename          as          link,
+            fic.filename          as          cover,
+            m.create_time,
+            m.update_time
+        from music m
+            left join file_info fim on m.music_file_id = fim.id
+            left join file_info fic on m.cover_file_id = fic.id
         <where>
             <if test="key != null and key != ''">
                 and (name like #{key} or singer like #{key})
