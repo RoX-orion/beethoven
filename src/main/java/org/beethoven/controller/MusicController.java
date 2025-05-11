@@ -5,15 +5,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.beethoven.pojo.PageInfo;
-import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.vo.ManageMusic;
+import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class MusicController {
     private MusicService musicService;
 
     @RequestMapping(value = "uploadMusic", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ApiResult<String> uploadMusic(@Valid UploadMusicDTO uploadMusicDTO) {
+    public ApiResult<String> uploadMusic(@Valid UploadMusicDTO uploadMusicDTO) throws IOException {
         return musicService.uploadMusic(uploadMusicDTO);
     }
 
@@ -46,8 +47,8 @@ public class MusicController {
     }
 
     @RequestMapping(value = "searchMusic", method = RequestMethod.GET)
-    public ApiResult<List<MusicVo>> searchMusic(@Valid MusicDTO musicDTO) {
-        List<MusicVo> musicVoList = musicService.searchMusic(musicDTO);
+    public ApiResult<List<MusicVo>> searchMusic(@Valid SearchDTO searchDTO) {
+        List<MusicVo> musicVoList = musicService.searchMusic(searchDTO);
 
         return ApiResult.ok(musicVoList);
     }
@@ -60,8 +61,8 @@ public class MusicController {
     }
 
     @RequestMapping(value = "manage/getManageMusicList", method = RequestMethod.GET)
-    public ApiResult<PageInfo<List<ManageMusic>>> getManageMusicList(MusicDTO musicDTO) {
-        PageInfo<List<ManageMusic>> pageInfo = musicService.getManageMusicList(musicDTO);
+    public ApiResult<PageInfo<List<MusicManagement>>> getManageMusicList(SearchDTO searchDTO) {
+        PageInfo<List<MusicManagement>> pageInfo = musicService.getManageMusicList(searchDTO);
 
         return ApiResult.ok(pageInfo);
     }
@@ -72,7 +73,7 @@ public class MusicController {
     }
 
     @RequestMapping(value = "manage/updateMusic", method = RequestMethod.PUT)
-    public ApiResult<String> updateMusic(@Valid UpdateMusicDTO updateMusicDTO) {
+    public ApiResult<String> updateMusic(@Valid UpdateMusicDTO updateMusicDTO) throws IOException {
         return musicService.updateMusic(updateMusicDTO);
     }
 }

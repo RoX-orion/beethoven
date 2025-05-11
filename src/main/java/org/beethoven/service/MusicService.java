@@ -22,7 +22,7 @@ import org.beethoven.mapper.FileInfoMapper;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
 import org.beethoven.pojo.PageInfo;
-import org.beethoven.pojo.dto.MusicDTO;
+import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -30,7 +30,7 @@ import org.beethoven.pojo.entity.FileInfo;
 import org.beethoven.pojo.entity.Music;
 import org.beethoven.pojo.entity.MusicPlaylist;
 import org.beethoven.pojo.enums.StorageProvider;
-import org.beethoven.pojo.vo.ManageMusic;
+import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
@@ -70,8 +70,8 @@ public class MusicService {
     @Resource
     private FileInfoMapper fileInfoMapper;
 
-    @Transactional
-    public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) throws IOException {
         MultipartFile musicFile = uploadMusicDTO.getMusic();
         MultipartFile coverFile = uploadMusicDTO.getCover();
         String musicMime = musicFile.getContentType();
@@ -96,21 +96,17 @@ public class MusicService {
         String fileName = Constant.USER_DIR + ossMusicName;
         File tempFile = new File(fileName);
         if (!tempFile.exists()) {
-            try {
-                File parentFile = tempFile.getParentFile();
-                if (!parentFile.exists()) {
-                    parentFile.mkdirs();
-                }
-                tempFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            File parentFile = tempFile.getParentFile();
+            if (!parentFile.exists()) {
+                parentFile.mkdirs();
             }
+            tempFile.createNewFile();
         }
 
-        BufferedInputStream bufferedInputStream = null;
         try(InputStream musicInputStream = musicFile.getInputStream();
             InputStream coverInputStream = coverFile.getInputStream();
-            FileOutputStream outputStream = new FileOutputStream(fileName)) {
+            FileOutputStream outputStream = new FileOutputStream(fileName);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
             while ((i = musicInputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, i);
             }
@@ -120,8 +116,6 @@ public class MusicService {
                 throw new MediaException("parse music info error!");
             }
             music.setDuration(duration);
-
-            bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
 
             FileInfo musicFileInfo = new FileInfo();
             musicFileInfo.setOriginalFilename(musicFile.getOriginalFilename());
@@ -155,19 +149,10 @@ public class MusicService {
                 coverFileInfo.setHash(uploadCoverResponse.hash);
             }
             musicMapper.updateById(music);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } finally {
             File file = new File(fileName);
             if (file.exists()) {
                 file.delete();
-            }
-            if (bufferedInputStream != null) {
-                try {
-                    bufferedInputStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
 
@@ -251,9 +236,9 @@ public class MusicService {
 //        }
     }
 
-    public List<MusicVo> searchMusic(MusicDTO musicDTO) {
-        int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
-        return musicMapper.searchMusic(offset, musicDTO.getSize(), Helpers.buildFuzzySearchParam(musicDTO.getKey()));
+    public List<MusicVo> searchMusic(SearchDTO searchDTO) {
+        int offset = (searchDTO.getPage() - 1) * searchDTO.getSize();
+        return musicMapper.searchMusic(offset, searchDTO.getSize(), Helpers.buildFuzzySearchParam(searchDTO.getKey()));
     }
 
     public MusicVo getMusicInfo(Long id) {
@@ -272,16 +257,16 @@ public class MusicService {
         return musicVo;
     }
 
-    public PageInfo<List<ManageMusic>> getManageMusicList(@Valid MusicDTO musicDTO) {
-        int offset = (musicDTO.getPage() - 1) * musicDTO.getSize();
-        String param = Helpers.buildFuzzySearchParam(musicDTO.getKey());
-        List<ManageMusic> manageMusicList = musicMapper.getManageMusicList(offset, musicDTO.getSize(), param);
+    public PageInfo<List<MusicManagement>> getManageMusicList(@Valid SearchDTO searchDTO) {
+        int offset = (searchDTO.getPage() - 1) * searchDTO.getSize();
+        String key = Helpers.buildFuzzySearchParam(searchDTO.getKey());
+        List<MusicManagement> musicManagementList = musicMapper.getManageMusicList(offset, searchDTO.getSize(), key);
         LambdaQueryWrapper<Music> queryWrapper = new QueryWrapper<Music>().lambda();
-        if (StringUtils.hasText(param)) {
-            queryWrapper = new QueryWrapper<Music>().lambda().like(Music::getName, param).or().like(Music::getSinger, param);
+        if (StringUtils.hasText(key)) {
+            queryWrapper = new QueryWrapper<Music>().lambda().like(Music::getName, key).or().like(Music::getSinger, key);
         }
         Long total = musicMapper.selectCount(queryWrapper);
-        return PageInfo.result(manageMusicList, total);
+        return PageInfo.result(musicManagementList, total);
     }
 
     @Transactional
@@ -306,7 +291,8 @@ public class MusicService {
         return ApiResult.ok();
     }
 
-    public ApiResult<String> updateMusic(UpdateMusicDTO updateMusicDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult<String> updateMusic(UpdateMusicDTO updateMusicDTO) throws IOException {
         if (updateMusicDTO.getMusicId() == null)
             return ApiResult.fail("Music id can't be null!");
         if (!StringUtils.hasText(updateMusicDTO.getName()) || !StringUtils.hasText(updateMusicDTO.getSinger()))
@@ -314,6 +300,7 @@ public class MusicService {
         Music music = musicMapper.selectById(updateMusicDTO.getMusicId());
         if (music == null)
             return ApiResult.fail("Music is not exist!");
+
         MultipartFile musicFile = updateMusicDTO.getMusic();
         MultipartFile coverFile = updateMusicDTO.getCover();
         String musicMime = musicFile.getContentType();
@@ -332,87 +319,83 @@ public class MusicService {
         music.setSinger(updateMusicDTO.getSinger().trim());
 
         if (updateMusicDTO.getMusic() != null) {
-            int i;
-            byte[] buffer = new byte[4096];
             String fileName = Constant.USER_DIR + ossMusicName;
             File tempFile = new File(fileName);
             if (!tempFile.exists()) {
-                try {
-                    File parentFile = tempFile.getParentFile();
-                    if (!parentFile.exists()) {
-                        parentFile.mkdirs();
-                    }
-                    tempFile.createNewFile();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                File parentFile = tempFile.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+                tempFile.createNewFile();
+            }
+
+            int i;
+            byte[] buffer = new byte[4096];
+            try(InputStream musicInputStream = musicFile.getInputStream();
+                FileOutputStream outputStream = new FileOutputStream(fileName);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
+                while ((i = musicInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, i);
+                }
+                int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
+                if (duration <= 0) {
+                    log.error("parse music info error, file name: {}", musicFile.getOriginalFilename());
+                    throw new MediaException("parse music info error!");
+                }
+                music.setDuration(duration);
+
+                FileInfo musicFileInfo = new FileInfo();
+                musicFileInfo.setOriginalFilename(musicFile.getOriginalFilename());
+                musicFileInfo.setFilename(ossMusicName);
+                musicFileInfo.setSize(musicFile.getSize());
+                musicFileInfo.setMime(musicMime);
+                musicFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
+                musicFileInfo.setStorage(StorageProvider.MINIO);
+                fileInfoMapper.insert(musicFileInfo);
+
+                StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
+                if (uploadMusicResponse.isOk) {
+                    musicFileInfo.setHash(uploadMusicResponse.hash);
+                }
+                FileInfo oldMusicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
+                storageContext.remove(oldMusicFileInfo.getFilename());
+                music.setMusicFileId(musicFileInfo.getId());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                File file = new File(fileName);
+                if (file.exists()) {
+                    file.delete();
                 }
             }
+        }
+
+        if (updateMusicDTO.getVideo() != null) {
 
         }
 
-//        BufferedInputStream bufferedInputStream = null;
-//        try(InputStream musicInputStream = musicFile.getInputStream();
-//            InputStream coverInputStream = coverFile.getInputStream();
-//            FileOutputStream outputStream = new FileOutputStream(fileName)) {
-//            while ((i = musicInputStream.read(buffer)) != -1) {
-//                outputStream.write(buffer, 0, i);
-//            }
-//            int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
-//            if (duration <= 0) {
-//                log.error("parse music info error, file name: {}", musicFile.getOriginalFilename());
-//                throw new MediaException("parse music info error!");
-//            }
-//            music.setDuration(duration);
-//
-//            bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName));
-//
-//            FileInfo musicFileInfo = new FileInfo();
-//            musicFileInfo.setOriginalFilename(musicFile.getOriginalFilename());
-//            musicFileInfo.setFilename(ossMusicName);
-//            musicFileInfo.setSize(musicFile.getSize());
-//            musicFileInfo.setMime(musicMime);
-//            musicFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
-//            musicFileInfo.setStorage(StorageProvider.MINIO);
-//
-//            FileInfo coverFileInfo = new FileInfo();
-//            coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
-//            coverFileInfo.setFilename(ossCoverName);
-//            coverFileInfo.setSize(coverFile.getSize());
-//            coverFileInfo.setMime(coverMime);
-//            coverFileInfo.setChecksum("");
-//            coverFileInfo.setStorage(StorageProvider.MINIO);
-//
-//            fileInfoMapper.insert(musicFileInfo);
-//            fileInfoMapper.insert(coverFileInfo);
-//
-//            music.setMusicFileId(musicFileInfo.getId());
-//            music.setCoverFileId(coverFileInfo.getId());
-//
-//            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
-//            if (uploadMusicResponse.isOk) {
-//                musicFileInfo.setHash(uploadMusicResponse.hash);
-//            }
-//
-//            StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
-//            if (uploadCoverResponse.isOk) {
-//                coverFileInfo.setHash(uploadCoverResponse.hash);
-//            }
-//            musicMapper.updateById(music);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } finally {
-//            File file = new File(fileName);
-//            if (file.exists()) {
-//                file.delete();
-//            }
-//            if (bufferedInputStream != null) {
-//                try {
-//                    bufferedInputStream.close();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
+        if (updateMusicDTO.getCover() != null) {
+            try(InputStream coverInputStream = coverFile.getInputStream()) {
+                FileInfo coverFileInfo = new FileInfo();
+                coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
+                coverFileInfo.setFilename(ossCoverName);
+                coverFileInfo.setSize(coverFile.getSize());
+                coverFileInfo.setMime(coverMime);
+                coverFileInfo.setChecksum("");
+                coverFileInfo.setStorage(StorageProvider.MINIO);
+                fileInfoMapper.insert(coverFileInfo);
+
+                StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
+                if (uploadCoverResponse.isOk) {
+                    coverFileInfo.setHash(uploadCoverResponse.hash);
+                }
+                FileInfo oldCoverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
+                storageContext.remove(oldCoverFileInfo.getFilename());
+                music.setCoverFileId(coverFileInfo.getId());
+            }
+        }
+
+        musicMapper.updateById(music);
 
         return ApiResult.ok();
     }

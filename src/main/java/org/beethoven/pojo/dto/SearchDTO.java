@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MusicDTO extends PageDTO {
+public class SearchDTO extends PageDTO {
 
     @NotBlank
     private String key;

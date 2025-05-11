@@ -16,7 +16,7 @@ import java.util.Date;
  */
 
 @Data
-public class ManageMusic {
+public class MusicManagement {
 
     public Long id;
 

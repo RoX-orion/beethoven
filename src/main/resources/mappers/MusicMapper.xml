@@ -19,7 +19,7 @@
         order by id desc
         limit #{size} offset #{offset};
     </select>
-    <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.ManageMusic">
+    <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.MusicManagement">
         select
             m.id,
             album,
