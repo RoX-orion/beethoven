@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.beethoven.mapper.VideoMapper">
+    <select id="getVideoInfo" resultType="org.beethoven.pojo.vo.VideoVo">
+        select
+            v.id            as          videoId,
+            filename        as          link
+        from video v
+            left join file_info fi on v.video_file_id = fi.id
+        where v.id = #{videoId}
+    </select>
+</mapper>
