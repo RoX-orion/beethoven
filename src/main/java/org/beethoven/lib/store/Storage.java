@@ -21,4 +21,6 @@ public interface Storage {
     String getURL(String fileName);
 
     void remove(String fileName);
+
+    void getAllFiles();
 }

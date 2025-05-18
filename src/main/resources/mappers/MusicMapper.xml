@@ -4,9 +4,10 @@
     <select id="searchMusic" resultType="org.beethoven.pojo.vo.MusicVo">
         select
             m.id,
-            name,
-            singer,
-            duration,
+            m.name,
+            m.singer,
+            m.duration,
+            m.video_id,
             fim.size,
             fim.mime,
             fim.filename          as          link,
@@ -22,10 +23,11 @@
     <select id="getManageMusicList" resultType="org.beethoven.pojo.vo.MusicManagement">
         select
             m.id,
-            album,
+            m.album,
             name,
-            singer,
-            duration,
+            m.singer,
+            m.duration,
+            m.video_id,
             fim.size,
             fim.mime,
             fim.filename          as          link,

@@ -38,6 +38,8 @@ public class Music {
 
     private int shardingSize;
 
+    private Long videoId;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

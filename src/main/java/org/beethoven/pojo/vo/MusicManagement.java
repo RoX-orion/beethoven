@@ -42,6 +42,8 @@ public class MusicManagement {
 
     private Integer uploaderId;
 
+    private Long videoId;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 

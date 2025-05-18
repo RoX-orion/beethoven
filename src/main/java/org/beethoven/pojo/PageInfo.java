@@ -2,6 +2,8 @@ package org.beethoven.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
  *
@@ -15,14 +17,14 @@ public class PageInfo<T> {
 
     private final long total;
 
-    private final T list;
+    private final List<T> list;
 
-    private PageInfo(T list, long total) {
+    private PageInfo(List<T> list, long total) {
         this.list = list;
         this.total = total;
     }
 
-    public static <T> PageInfo<T> result(T list, long total) {
+    public static <T> PageInfo<T> result(List<T> list, long total) {
         return new PageInfo<>(list, total);
     }
 }

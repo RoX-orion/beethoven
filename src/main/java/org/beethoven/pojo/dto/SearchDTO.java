@@ -1,6 +1,5 @@
 package org.beethoven.pojo.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,6 +15,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SearchDTO extends PageDTO {
 
-    @NotBlank
     private String key;
 }

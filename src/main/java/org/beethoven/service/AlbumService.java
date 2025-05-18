@@ -28,7 +28,7 @@ public class AlbumService {
     @Resource
     private AlbumMapper albumMapper;
 
-    public PageInfo<List<AlbumManagement>> getManageAlbumList(SearchDTO searchDTO) {
+    public PageInfo<AlbumManagement> getManageAlbumList(SearchDTO searchDTO) {
         int offset = (searchDTO.getPage() - 1) * searchDTO.getSize();
         String key = Helpers.buildFuzzySearchParam(searchDTO.getKey());
         List<AlbumManagement> albumManagementList = albumMapper.getManageAlbumList(offset, searchDTO.getSize(), key);

@@ -34,4 +34,6 @@ public class MusicVo {
     public String mime;
 
     public String album;
+
+    public Long videoId;
 }

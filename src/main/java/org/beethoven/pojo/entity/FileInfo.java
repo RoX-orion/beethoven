@@ -7,6 +7,7 @@ import org.beethoven.lib.annotation.SplicingValue;
 import org.beethoven.pojo.enums.StorageProvider;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Copyright (c) 2025 Andre Lina. All rights reserved.
@@ -37,6 +38,8 @@ public class FileInfo {
     private StorageProvider storage;
 
     private String hash;
+
+    private List<String> hashList;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -72,4 +72,9 @@ public class Qiniu implements Storage {
     public void remove(String fileName) throws StorageException {
 
     }
+
+    @Override
+    public void getAllFiles() {
+
+    }
 }

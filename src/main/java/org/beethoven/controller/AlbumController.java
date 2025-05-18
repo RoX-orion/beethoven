@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 /**
  * Copyright (c) 2025 Andre Lina. All rights reserved.
  *
@@ -28,8 +26,8 @@ public class AlbumController {
     private AlbumService albumService;
 
     @RequestMapping(value = "manage/getManageAlbumList", method = RequestMethod.GET)
-    public ApiResult<PageInfo<List<AlbumManagement>>> getManageMusicList(SearchDTO searchDTO) {
-        PageInfo<List<AlbumManagement>> pageInfo = albumService.getManageAlbumList(searchDTO);
+    public ApiResult<PageInfo<AlbumManagement>> getManageMusicList(SearchDTO searchDTO) {
+        PageInfo<AlbumManagement> pageInfo = albumService.getManageAlbumList(searchDTO);
 
         return ApiResult.ok(pageInfo);
     }

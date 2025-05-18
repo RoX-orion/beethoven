@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
+import org.beethoven.lib.AuthContext;
 import org.beethoven.lib.BeethovenLib;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
@@ -21,20 +22,19 @@ import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.FileInfoMapper;
 import org.beethoven.mapper.MusicMapper;
 import org.beethoven.mapper.MusicPlaylistMapper;
+import org.beethoven.mapper.VideoMapper;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
-import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.entity.FileInfo;
-import org.beethoven.pojo.entity.Music;
-import org.beethoven.pojo.entity.MusicPlaylist;
+import org.beethoven.pojo.entity.*;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.pojo.vo.MusicVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -70,16 +70,21 @@ public class MusicService {
     @Resource
     private FileInfoMapper fileInfoMapper;
 
+    @Resource
+    private VideoMapper videoMapper;
+    @Autowired
+    private AuthContext authContext;
+
     @Transactional(rollbackFor = Exception.class)
     public ApiResult<String> uploadMusic(UploadMusicDTO uploadMusicDTO) throws IOException {
         MultipartFile musicFile = uploadMusicDTO.getMusic();
         MultipartFile coverFile = uploadMusicDTO.getCover();
         String musicMime = musicFile.getContentType();
-        if (!FileUtil.checkAudioMime(musicMime)) {
+        if (!FileUtil.checkMime(musicMime, FileUtil.FileType.AUDIO)) {
             return ApiResult.fail(String.format("music file content type[%s] not support!", musicMime));
         }
         String coverMime = coverFile.getContentType();
-        if (!FileUtil.checkImageMime(coverMime)) {
+        if (!FileUtil.checkMime(coverMime, FileUtil.FileType.IMAGE)) {
             return ApiResult.fail(String.format("cover file content type[%s] not support!", coverMime));
         }
         String ossMusicName = Constant.MUSIC_DIR + Helpers.buildOssFileName(musicFile.getOriginalFilename());
@@ -93,7 +98,7 @@ public class MusicService {
 
         int i;
         byte[] buffer = new byte[4096];
-        String fileName = Constant.USER_DIR + ossMusicName;
+        String fileName = Constant.USER_DIR + "/" + ossMusicName;
         File tempFile = new File(fileName);
         if (!tempFile.exists()) {
             File parentFile = tempFile.getParentFile();
@@ -143,11 +148,13 @@ public class MusicService {
             if (uploadMusicResponse.isOk) {
                 musicFileInfo.setHash(uploadMusicResponse.hash);
             }
+            fileInfoMapper.updateById(musicFileInfo);
 
             StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
             if (uploadCoverResponse.isOk) {
                 coverFileInfo.setHash(uploadCoverResponse.hash);
             }
+            fileInfoMapper.updateById(coverFileInfo);
             musicMapper.updateById(music);
         } finally {
             File file = new File(fileName);
@@ -257,7 +264,7 @@ public class MusicService {
         return musicVo;
     }
 
-    public PageInfo<List<MusicManagement>> getManageMusicList(@Valid SearchDTO searchDTO) {
+    public PageInfo<MusicManagement> getManageMusicList(@Valid SearchDTO searchDTO) {
         int offset = (searchDTO.getPage() - 1) * searchDTO.getSize();
         String key = Helpers.buildFuzzySearchParam(searchDTO.getKey());
         List<MusicManagement> musicManagementList = musicMapper.getManageMusicList(offset, searchDTO.getSize(), key);
@@ -293,6 +300,9 @@ public class MusicService {
 
     @Transactional(rollbackFor = Exception.class)
     public ApiResult<String> updateMusic(UpdateMusicDTO updateMusicDTO) throws IOException {
+        Long userId = authContext.getUserId();
+        if (userId == null)
+            return ApiResult.expired("Get user info fail!");
         if (updateMusicDTO.getMusicId() == null)
             return ApiResult.fail("Music id can't be null!");
         if (!StringUtils.hasText(updateMusicDTO.getName()) || !StringUtils.hasText(updateMusicDTO.getSinger()))
@@ -303,23 +313,33 @@ public class MusicService {
 
         MultipartFile musicFile = updateMusicDTO.getMusic();
         MultipartFile coverFile = updateMusicDTO.getCover();
-        String musicMime = musicFile.getContentType();
-        if (!FileUtil.checkAudioMime(musicMime)) {
+        MultipartFile videoFile = updateMusicDTO.getVideo();
+        String musicMime = null;
+        String coverMime = null;
+        String videoMime = null;
+        if (musicFile != null)
+            musicMime = musicFile.getContentType();
+        if (coverFile != null)
+            coverMime = coverFile.getContentType();
+        if (videoFile != null)
+            videoMime = videoFile.getContentType();
+        if (musicFile != null && !FileUtil.checkMime(musicMime, FileUtil.FileType.AUDIO)) {
             return ApiResult.fail(String.format("music file content type[%s] not support!", musicMime));
         }
-        String coverMime = coverFile.getContentType();
-        if (!FileUtil.checkImageMime(coverMime)) {
+        if (coverFile != null && !FileUtil.checkMime(coverMime, FileUtil.FileType.IMAGE)) {
             return ApiResult.fail(String.format("cover file content type[%s] not support!", coverMime));
         }
-        String ossMusicName = Constant.MUSIC_DIR + Helpers.buildOssFileName(musicFile.getOriginalFilename());
-        String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
+        if (videoFile != null && !FileUtil.checkMime(videoMime, FileUtil.FileType.VIDEO)) {
+            return ApiResult.fail(String.format("video file content type[%s] not support!", videoMime));
+        }
         if (StringUtils.hasText(updateMusicDTO.getAlbum()))
             music.setAlbum(updateMusicDTO.getAlbum().trim());
         music.setName(updateMusicDTO.getName().trim());
         music.setSinger(updateMusicDTO.getSinger().trim());
 
-        if (updateMusicDTO.getMusic() != null) {
-            String fileName = Constant.USER_DIR + ossMusicName;
+        if (musicFile != null) {
+            String ossMusicName = Constant.MUSIC_DIR + Helpers.buildOssFileName(musicFile.getOriginalFilename());
+            String fileName = Constant.USER_DIR + "/" + ossMusicName;
             File tempFile = new File(fileName);
             if (!tempFile.exists()) {
                 File parentFile = tempFile.getParentFile();
@@ -360,6 +380,7 @@ public class MusicService {
                 FileInfo oldMusicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
                 storageContext.remove(oldMusicFileInfo.getFilename());
                 music.setMusicFileId(musicFileInfo.getId());
+                fileInfoMapper.updateById(musicFileInfo);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -370,11 +391,79 @@ public class MusicService {
             }
         }
 
-        if (updateMusicDTO.getVideo() != null) {
+        if (videoFile != null) {
+            Video video = null;
+            if (music.getVideoId() != null)
+                video = videoMapper.selectById(music.getVideoId());
+            if (video == null) {
+                video = new Video();
+                video.setCreator(userId);
+            }
+            video.setUpdater(userId);
+            String ossVideoName = Constant.VIDEO_DIR + Helpers.buildOssFileName(videoFile.getOriginalFilename());
+            String fileName = Constant.USER_DIR + "/" + ossVideoName;
+            File tempFile = new File(fileName);
+            if (!tempFile.exists()) {
+                File parentFile = tempFile.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+                tempFile.createNewFile();
+            }
 
+            int i;
+            byte[] buffer = new byte[4096];
+            try(InputStream musicInputStream = videoFile.getInputStream();
+                FileOutputStream outputStream = new FileOutputStream(fileName);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
+                while ((i = musicInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, i);
+                }
+                int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
+                if (duration <= 0) {
+                    log.error("parse video info error, file name: {}", videoFile.getOriginalFilename());
+                    throw new MediaException("parse music info error!");
+                }
+
+                FileInfo videoFileInfo = new FileInfo();
+                videoFileInfo.setOriginalFilename(videoFile.getOriginalFilename());
+                videoFileInfo.setFilename(ossVideoName);
+                videoFileInfo.setSize(videoFile.getSize());
+                videoFileInfo.setMime(videoMime);
+                videoFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
+                videoFileInfo.setStorage(StorageProvider.MINIO);
+                fileInfoMapper.insert(videoFileInfo);
+
+                if (video.getVideoFileId() != null) {
+                    FileInfo oldVideoFileInfo = fileInfoMapper.selectById(video.getVideoFileId());
+                    storageContext.remove(oldVideoFileInfo.getFilename());
+                }
+
+                video.setDuration(duration);
+                video.setVideoFileId(videoFileInfo.getId());
+                if (video.getId() == null)
+                    videoMapper.insert(video);
+                else
+                    videoMapper.updateById(video);
+
+                StorageResponse uploadVideoResponse = storageContext.upload(bufferedInputStream, ossVideoName);
+                if (uploadVideoResponse.isOk) {
+                    videoFileInfo.setHash(uploadVideoResponse.hash);
+                }
+                fileInfoMapper.updateById(videoFileInfo);
+                music.setVideoId(video.getId());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                File file = new File(fileName);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
         }
 
-        if (updateMusicDTO.getCover() != null) {
+        if (coverFile != null) {
+            String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
             try(InputStream coverInputStream = coverFile.getInputStream()) {
                 FileInfo coverFileInfo = new FileInfo();
                 coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
@@ -389,6 +478,7 @@ public class MusicService {
                 if (uploadCoverResponse.isOk) {
                     coverFileInfo.setHash(uploadCoverResponse.hash);
                 }
+                fileInfoMapper.updateById(coverFileInfo);
                 FileInfo oldCoverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
                 storageContext.remove(oldCoverFileInfo.getFilename());
                 music.setCoverFileId(coverFileInfo.getId());

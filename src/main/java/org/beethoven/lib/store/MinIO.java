@@ -1,9 +1,10 @@
 package org.beethoven.lib.store;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
+//import com.alibaba.nacos.api.config.annotation.NacosValue;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
@@ -31,8 +32,8 @@ public class MinIO implements Storage {
     private MinioClient minioClient = null;
     private org.beethoven.pojo.entity.Storage storage;
 
-    @NacosValue(value = "${minio.direct:true}", autoRefreshed = true)
-    private boolean directLink;
+//    @NacosValue(value = "${minio.direct:true}", autoRefreshed = true)
+    private boolean directLink = true;
 
     @Override
     public void init() {
@@ -119,6 +120,27 @@ public class MinIO implements Storage {
                  XmlParserException e) {
             log.error(e.getMessage());
             throw new StorageException("Delete minio file fail!");
+        }
+    }
+
+    @Override
+    public void getAllFiles() {
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(storage.getBucket())
+                        .prefix("/music")
+                        .recursive(true)
+                        .build());
+        for (Result<Item> result : results) {
+            Item item;
+            try {
+                item = result.get();
+                System.out.println("- " + item.objectName() + " (Size: " + item.size() + ")");
+            } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                     InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                     XmlParserException e) {
+                log.error(e.getMessage());
+            }
         }
     }
 }

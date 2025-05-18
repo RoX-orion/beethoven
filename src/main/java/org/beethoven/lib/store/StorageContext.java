@@ -75,4 +75,8 @@ public class StorageContext {
     public void remove(String fileName) {
         storage.remove(fileName);
     }
+
+    public void getAllFiles() {
+        storage.getAllFiles();
+    }
 }

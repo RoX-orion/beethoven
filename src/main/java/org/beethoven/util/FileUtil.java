@@ -14,11 +14,26 @@ public class FileUtil {
 
     private FileUtil(){}
 
-    public static boolean checkAudioMime(String mime) {
-        return Constant.SUPPORT_AUDIO_MIME.contains(mime);
+    public enum FileType {
+        AUDIO,
+        IMAGE,
+        VIDEO
     }
 
-    public static boolean checkImageMime(String mime) {
-        return Constant.SUPPORT_IMAGE_MIME.contains(mime);
+    public static boolean checkMime(String mime, FileType fileType) {
+        switch (fileType) {
+            case AUDIO -> {
+                return Constant.SUPPORT_AUDIO_MIME.contains(mime);
+            }
+            case IMAGE -> {
+                return Constant.SUPPORT_IMAGE_MIME.contains(mime);
+            }
+            case VIDEO -> {
+                return Constant.SUPPORT_VIDEO_MIME.contains(mime);
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 }

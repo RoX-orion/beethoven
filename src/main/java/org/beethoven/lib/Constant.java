@@ -26,7 +26,13 @@ public class Constant {
             "image/png", "image/jpeg", "image/webp"
     );
 
+    public static final List<String> SUPPORT_VIDEO_MIME = Lists.newArrayList(
+            "video/mp4", "video/webm"
+    );
+
     public static final String MUSIC_DIR = "music/";
+
+    public static final String VIDEO_DIR = "video/";
 
     public static final String COVER_DIR = "cover/";
 

@@ -1,7 +1,10 @@
 package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
+import org.beethoven.pojo.PageInfo;
+import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.entity.ApiResult;
+import org.beethoven.pojo.vo.VideoManagement;
 import org.beethoven.pojo.vo.VideoVo;
 import org.beethoven.service.VideoService;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,5 +32,12 @@ public class VideoController {
         VideoVo videoVo = videoService.getVideoInfo(videoId);
 
         return ApiResult.ok(videoVo);
+    }
+
+    @RequestMapping(value = "manage/getManageVideoList", method = RequestMethod.GET)
+    public ApiResult<PageInfo<VideoManagement>> getManageVideoList(SearchDTO searchDTO) {
+        PageInfo<VideoManagement> videoManagementList = videoService.getManageVideoList(searchDTO);
+
+        return ApiResult.ok(videoManagementList);
     }
 }

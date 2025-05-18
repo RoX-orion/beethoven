@@ -9,4 +9,33 @@
             left join file_info fi on v.video_file_id = fi.id
         where v.id = #{videoId}
     </select>
+    <select id="getManageVideoList" resultType="org.beethoven.pojo.vo.VideoManagement">
+        select
+            v.id                as          videoId,
+            v.duration,
+            v.create_time,
+            v.update_time,
+            fiv.mime,
+            fiv.size,
+            fic.filename        as          cover,
+            m.singer,
+            m.name
+        from video v
+            left join file_info fiv on v.video_file_id = fiv.id
+            left join music m on v.id = m.video_id
+            left join file_info fic on m.cover_file_id = fic.id
+        <where>
+            <if test="key != null and key != ''">and (m.name like #{key} or m.singer like #{key})</if>
+        </where>
+        limit #{size} offset #{offset};
+    </select>
+    <select id="getManageVideoCount" resultType="java.lang.Long">
+        select
+            count(*)
+        from video v
+            left join music m on v.id = m.video_id
+        <where>
+            <if test="key != null and key != ''">and (m.name like #{key} or m.singer like #{key})</if>
+        </where>
+    </select>
 </mapper>
