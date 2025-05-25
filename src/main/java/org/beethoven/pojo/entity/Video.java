@@ -24,8 +24,6 @@ public class Video {
 
     private int duration;
 
-    private String sha;
-
     private Long creator;
 
     private Long updater;

@@ -1,6 +1,7 @@
 package org.beethoven.lib.store;
 
 import jakarta.annotation.Resource;
+import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +79,9 @@ public class StorageContext {
 
     public void getAllFiles() {
         storage.getAllFiles();
+    }
+
+    public String getEndpoint() {
+        return GlobalConfig.getStorage().getEndpoint();
     }
 }

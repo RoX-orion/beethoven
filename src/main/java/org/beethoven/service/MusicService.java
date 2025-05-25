@@ -288,12 +288,10 @@ public class MusicService {
                 new LambdaQueryWrapper<MusicPlaylist>().eq(MusicPlaylist::getMusicId, musicId)
         );
         fileInfoMapper.deleteByIds(List.of(music.getMusicFileId(), music.getCoverFileId()));
-        FileInfo musicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
-        if (musicFileInfo != null)
-            storageContext.remove(musicFileInfo.getFilename());
-        FileInfo coverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
-        if (coverFileInfo != null)
-            storageContext.remove(coverFileInfo.getFilename());
+        List<FileInfo> fileInfoList = fileInfoMapper.selectBatchIds(List.of(music.getMusicFileId(), music.getCoverFileId()));
+        for (FileInfo fileInfo : fileInfoList) {
+            storageContext.remove(fileInfo.getFilename());
+        }
 
         return ApiResult.ok();
     }

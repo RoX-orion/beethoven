@@ -33,9 +33,11 @@ public class SplicingValueAspect {
             Class<?> clazz = result.getClass();
             if (result instanceof List<?> list) {
                 for (Object item : list) {
-                    Class<?> itemClazz = item.getClass();
-                    Field[] fields = itemClazz.getDeclaredFields();
-                    setValue(fields, item);
+                    if (item != null) {
+                        Class<?> itemClazz = item.getClass();
+                        Field[] fields = itemClazz.getDeclaredFields();
+                        setValue(fields, item);
+                    }
                 }
             } else {
                 Field[] fields = clazz.getDeclaredFields();

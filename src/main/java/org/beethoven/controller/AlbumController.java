@@ -1,11 +1,14 @@
 package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.beethoven.pojo.PageInfo;
+import org.beethoven.pojo.dto.AlbumDTO;
 import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.AlbumManagement;
 import org.beethoven.service.AlbumService;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +33,10 @@ public class AlbumController {
         PageInfo<AlbumManagement> pageInfo = albumService.getManageAlbumList(searchDTO);
 
         return ApiResult.ok(pageInfo);
+    }
+
+    @RequestMapping(value = "addAlbum", method = RequestMethod.POST)
+    public ApiResult<Void> addAlbum(@RequestBody @Valid AlbumDTO albumDTO) {
+        return albumService.addAlbum(albumDTO);
     }
 }

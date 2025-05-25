@@ -109,6 +109,9 @@ public class MinIO implements Storage {
     public void remove(String fileName) {
         if (!StringUtils.hasText(fileName))
             return;
+        if (fileName.startsWith(storage.getEndpoint())) {
+            fileName = fileName.substring(storage.getEndpoint().length());
+        }
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                             .bucket(storage.getBucket())
