@@ -136,26 +136,27 @@ public class PlaylistService {
             return ApiResult.fail("歌单不存在");
         }
 
-        MultipartFile coverFile = playlistDTO.getCoverFile();
-        String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
         Playlist playlist = new Playlist();
-        try {
-            StorageResponse uploadCoverResponse = storageContext.upload(coverFile.getInputStream(), ossCoverName);
-            if (uploadCoverResponse.isOk) {
-                playlist.setCover(ossCoverName);
+        MultipartFile coverFile = playlistDTO.getCoverFile();
+        if (coverFile != null) {
+            String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
+            try {
+                StorageResponse uploadCoverResponse = storageContext.upload(coverFile.getInputStream(), ossCoverName);
+                if (uploadCoverResponse.isOk) {
+                    playlist.setCover(ossCoverName);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (StringUtils.hasText(record.getCover())) {
+                storageContext.remove(record.getCover());
+            }
         }
         playlist.setId(playlistDTO.getId());
         playlist.setTitle(playlistDTO.getTitle());
         playlist.setAccessible(playlistDTO.getAccessible());
         playlist.setIntroduction(playlistDTO.getIntroduction());
         playlistMapper.updateById(playlist);
-
-        if (StringUtils.hasText(record.getCover())) {
-            storageContext.remove(record.getCover());
-        }
 
         return ApiResult.ok();
     }
@@ -164,16 +165,6 @@ public class PlaylistService {
         PageParam pageParam = Helpers.buildPageParam(page, size);
         key = StringUtils.hasText(key) ? Helpers.buildFuzzySearchParam(key) : null;
         return playlistMapper.getHomePlaylist(key, pageParam);
-    }
-
-    public ApiResult<Void> getPlaylist() {
-        Long userId = authContext.getUserId();
-        if (userId != null) {
-
-        } else {
-
-        }
-        return null;
     }
 
     public ApiResult<String> removeMusic(Long playlistId, Long musicId) {

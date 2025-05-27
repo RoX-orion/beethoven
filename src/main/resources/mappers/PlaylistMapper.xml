@@ -45,14 +45,16 @@
             p.id,
             p.title,
             p.cover,
-            p.music_count,
+            count(mp.music_id)            as      music_count,
             p.create_time,
             p.introduction,
             p.accessible,
-            a.username          as      author
+            a.username                    as      author
         from playlist p
             left join account a on p.creator = a.id
+            left join music_playlist mp on p.id = mp.playlist_id
         where p.id = #{playlistId}
+        group by p.id, p.title, p.cover, a.username
     </select>
     <select id="getHomePlaylist" resultType="org.beethoven.pojo.vo.PlaylistVo">
         select
