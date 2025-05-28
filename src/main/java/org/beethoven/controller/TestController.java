@@ -2,8 +2,10 @@ package org.beethoven.controller;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import org.beethoven.lib.BeethovenLib;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedInputStream;
@@ -23,9 +25,9 @@ import java.io.IOException;
 public class TestController {
 
 
-    @RequestMapping(value = "file", method = RequestMethod.POST)
+    @RequestMapping(value = "file", method = RequestMethod.GET)
     public void downloadFile(HttpServletResponse response) {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\52828\\Desktop\\rain.mp3"))) {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\52828\\Downloads\\Video\\dingxi.mp3"))) {
             byte[] bytes = new byte[4096];
             ServletOutputStream outputStream = response.getOutputStream();
             int i;
@@ -35,5 +37,10 @@ public class TestController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @RequestMapping(value = "native", method = RequestMethod.GET)
+    public int invokeNative(@RequestParam("path") String path) {
+        return BeethovenLib.INSTANCE.get_bit_rate(path);
     }
 }

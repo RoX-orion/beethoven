@@ -1,6 +1,7 @@
 package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.entity.ApiResult;
@@ -34,6 +35,7 @@ public class VideoController {
         return ApiResult.ok(videoVo);
     }
 
+    @Permission
     @RequestMapping(value = "manage/getManageVideoList", method = RequestMethod.GET)
     public ApiResult<PageInfo<VideoManagement>> getManageVideoList(SearchDTO searchDTO) {
         PageInfo<VideoManagement> videoManagementList = videoService.getManageVideoList(searchDTO);

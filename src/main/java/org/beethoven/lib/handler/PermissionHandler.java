@@ -5,9 +5,11 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.entity.ApiResult;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -29,6 +31,9 @@ public class PermissionHandler implements HandlerInterceptor {
     @Resource
     private ObjectMapper mapper;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
         if (handler instanceof HandlerMethod handlerMethod) {
@@ -36,6 +41,10 @@ public class PermissionHandler implements HandlerInterceptor {
             if (permission != null) {
                 String token = request.getHeader("Authorization");
                 if (!StringUtils.hasText(token)) {
+                    write(response, ApiResult.expired("UNAUTHORIZED"));
+                    return false;
+                }
+                if (!stringRedisTemplate.hasKey(Constant.PREFIX.USER_ID + token)) {
                     write(response, ApiResult.expired("UNAUTHORIZED"));
                     return false;
                 }

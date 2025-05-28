@@ -2,6 +2,7 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.AlbumDTO;
 import org.beethoven.pojo.dto.SearchDTO;
@@ -28,6 +29,7 @@ public class AlbumController {
     @Resource
     private AlbumService albumService;
 
+    @Permission
     @RequestMapping(value = "manage/getManageAlbumList", method = RequestMethod.GET)
     public ApiResult<PageInfo<AlbumManagement>> getManageMusicList(SearchDTO searchDTO) {
         PageInfo<AlbumManagement> pageInfo = albumService.getManageAlbumList(searchDTO);
@@ -35,6 +37,7 @@ public class AlbumController {
         return ApiResult.ok(pageInfo);
     }
 
+    @Permission
     @RequestMapping(value = "addAlbum", method = RequestMethod.POST)
     public ApiResult<Void> addAlbum(@RequestBody @Valid AlbumDTO albumDTO) {
         return albumService.addAlbum(albumDTO);

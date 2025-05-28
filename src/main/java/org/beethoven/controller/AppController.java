@@ -1,6 +1,7 @@
 package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.AppConfig;
 import org.beethoven.pojo.vo.MusicConfig;
@@ -38,6 +39,7 @@ public class AppController {
         return ApiResult.ok(musicConfig);
     }
 
+    @Permission
     @RequestMapping(value = "musicConfig", method = RequestMethod.PUT)
     public ApiResult<Void> updateMusicConfig(MusicConfig musicConfig) {
         appService.updateMusicConfig(musicConfig);

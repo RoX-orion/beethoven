@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -174,8 +175,8 @@ public class AuthService {
                 accountService.setAccountInfo(account, accountVo);
             }
         }
-        redisTemplate.opsForValue().set(Constant.PREFIX.USER_INFO + accountVo.getToken(), mapper.writeValueAsString(accountVo));
-        redisTemplate.opsForValue().set(Constant.PREFIX.USER_ID + accountVo.getToken(), String.valueOf(accountVo.getId()));
+        redisTemplate.opsForValue().set(Constant.PREFIX.USER_INFO + accountVo.getToken(), mapper.writeValueAsString(accountVo), Constant.TOKEN_EXPIRE_TIME, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(Constant.PREFIX.USER_ID + accountVo.getToken(), String.valueOf(accountVo.getId()), Constant.TOKEN_EXPIRE_TIME, TimeUnit.DAYS);
         return accountVo;
     }
 

@@ -3,6 +3,7 @@ package org.beethoven.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.AccountVo;
 import org.beethoven.service.AccountService;
@@ -26,11 +27,13 @@ public class AccountController {
     @Resource
     private AccountService accountService;
 
+    @Permission
     @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
     public ApiResult<AccountVo> getAccountInfo(@PathVariable("id") Long id) {
         return accountService.getAccountInfo(id);
     }
 
+    @Permission
     @RequestMapping(value = "info/token", method = RequestMethod.GET)
     public ApiResult<AccountVo> getAccountInfoByToken(HttpServletRequest request) throws JsonProcessingException {
         AccountVo accountVo = accountService.getAccountInfoByToken(request);

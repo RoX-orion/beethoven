@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.OAuth2Info;
 import org.beethoven.pojo.dto.OAuth2Login;
 import org.beethoven.pojo.entity.ApiResult;
@@ -51,6 +52,7 @@ public class AuthController {
         System.out.println("event:" + object);
     }
 
+    @Permission
     @RequestMapping(value = "logout", method = RequestMethod.POST)
     public ApiResult<Void> logout(HttpServletRequest request) {
         authService.logout(request);

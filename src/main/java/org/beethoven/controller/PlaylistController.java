@@ -36,6 +36,7 @@ public class PlaylistController {
         return ApiResult.ok(playList);
     }
 
+    @Permission
     @RequestMapping(value = "addPlaylist", method = RequestMethod.POST)
     public ApiResult<Void> addPlaylist(@RequestBody @Valid PlaylistDTO playlistInfo) {
         playlistService.addPlaylist(playlistInfo);
@@ -65,6 +66,7 @@ public class PlaylistController {
         return ApiResult.ok(playlistVo);
     }
 
+    @Permission
     @RequestMapping(value = "updatePlaylist", method = RequestMethod.PUT)
     public ApiResult<Void> updatePlaylist(@Valid PlaylistDTO playlistDTO) {
         return playlistService.updatePlaylist(playlistDTO);
@@ -78,6 +80,7 @@ public class PlaylistController {
         return ApiResult.ok(playlistVoList);
     }
 
+    @Permission
     @RequestMapping(value = "removeMusic/{playlistId}/{musicId}", method = RequestMethod.DELETE)
     public ApiResult<String> removeMusic(@PathVariable("playlistId") Long playlistId,
                                          @PathVariable("musicId") Long musicId) {

@@ -1,6 +1,7 @@
 package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Setting;
 import org.beethoven.service.SettingService;
@@ -31,6 +32,7 @@ public class SettingController {
         return ApiResult.ok(setting);
     }
 
+    @Permission
     @RequestMapping(value = "updateSetting", method = RequestMethod.PUT)
     public ApiResult<Void> updateSetting(@RequestBody Setting setting) {
         settingService.updateSetting(setting);

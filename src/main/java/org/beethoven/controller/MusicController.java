@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.PageInfo;
 import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
@@ -32,11 +33,13 @@ public class MusicController {
     @Resource
     private MusicService musicService;
 
+    @Permission
     @RequestMapping(value = "uploadMusic", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ApiResult<String> uploadMusic(@Valid UploadMusicDTO uploadMusicDTO) throws IOException {
         return musicService.uploadMusic(uploadMusicDTO);
     }
 
+    @Permission
     @RequestMapping(value = "fetchMusic", method = RequestMethod.GET)
     public ApiResult<Void> fetchMusic(HttpServletRequest request,
                                       HttpServletResponse response,
@@ -60,6 +63,7 @@ public class MusicController {
         return ApiResult.ok(musicInfo);
     }
 
+    @Permission
     @RequestMapping(value = "manage/getManageMusicList", method = RequestMethod.GET)
     public ApiResult<PageInfo<MusicManagement>> getManageMusicList(SearchDTO searchDTO) {
         PageInfo<MusicManagement> pageInfo = musicService.getManageMusicList(searchDTO);
@@ -67,11 +71,13 @@ public class MusicController {
         return ApiResult.ok(pageInfo);
     }
 
+    @Permission
     @RequestMapping(value = "manage/deleteMusic/{musicId}", method = RequestMethod.DELETE)
     public ApiResult<String> deleteMusic(@PathVariable("musicId") Long musicId) {
         return musicService.deleteMusic(musicId);
     }
 
+    @Permission
     @RequestMapping(value = "manage/updateMusic", method = RequestMethod.PUT)
     public ApiResult<String> updateMusic(@Valid UpdateMusicDTO updateMusicDTO) throws IOException {
         return musicService.updateMusic(updateMusicDTO);

@@ -2,6 +2,7 @@ package org.beethoven.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.dto.StorageDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.entity.Storage;
@@ -40,6 +41,7 @@ public class StorageController {
         return ApiResult.ok(storageInfo);
     }
 
+    @Permission
     @RequestMapping(value = "configureStorage", method = RequestMethod.POST)
     public ApiResult<Void> configureStorage(@RequestBody @Valid StorageDTO storageDTO) {
         storageService.configureStorage(storageDTO);

@@ -52,6 +52,8 @@ public class Constant {
 
     public static final String DEFAULT_STORAGE = StorageProvider.MINIO.name();
 
+    public static final int TOKEN_EXPIRE_TIME = 30;
+
     public static class PREFIX {
         public static final String CONFIG = "config:";
 
