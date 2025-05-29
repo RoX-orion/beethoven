@@ -11,6 +11,7 @@ import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.service.PlaylistService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,10 +39,8 @@ public class PlaylistController {
 
     @Permission
     @RequestMapping(value = "addPlaylist", method = RequestMethod.POST)
-    public ApiResult<Void> addPlaylist(@RequestBody @Valid PlaylistDTO playlistInfo) {
-        playlistService.addPlaylist(playlistInfo);
-
-        return ApiResult.ok();
+    public ApiResult<String> addPlaylist(@Valid PlaylistDTO playlistInfo) throws IOException {
+       return playlistService.addPlaylist(playlistInfo);
     }
 
     @Permission

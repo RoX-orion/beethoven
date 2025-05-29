@@ -26,13 +26,13 @@ public class Playlist {
 
     private String introduction;
 
-    private String cover;
-
     private Integer musicCount;
 
     private boolean accessible;
 
     private Integer sequence;
+
+    private Long coverFileId;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

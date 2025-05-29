@@ -5,15 +5,16 @@
         select
             p.id,
             p.title,
-            p.cover,
-            count(mp.music_id)            as      music_count,
-            a.username                    as      author
+            fi.filename                 as          cover,
+            count(mp.music_id)          as          music_count,
+            a.username                  as          author
         from user_playlist up
             left join playlist p on up.playlist_id = p.id
             left join account a on p.creator = a.id
             left join music_playlist mp on p.id = mp.playlist_id
+            left join file_info fi on p.cover_file_id = fi.id
         where up.account_id = #{userId}
-        group by p.id, p.title, p.cover, a.username
+        group by p.id, p.title, fi.id, a.username
         order by id desc
         limit #{size} offset #{offset};
     </select>
@@ -44,33 +45,35 @@
         select
             p.id,
             p.title,
-            p.cover,
-            count(mp.music_id)            as      music_count,
+            fi.filename                     as          cover,
+            count(mp.music_id)              as          music_count,
             p.create_time,
             p.introduction,
             p.accessible,
-            a.username                    as      author
+            a.username                      as          author
         from playlist p
             left join account a on p.creator = a.id
             left join music_playlist mp on p.id = mp.playlist_id
+            left join file_info fi on p.cover_file_id = fi.id
         where p.id = #{playlistId}
-        group by p.id, p.title, p.cover, a.username
+        group by p.id, p.title, fi.id, a.username
     </select>
     <select id="getHomePlaylist" resultType="org.beethoven.pojo.vo.PlaylistVo">
         select
             p.id,
             p.title,
-            p.cover,
-            count(mp.music_id)      as       music_count,
-            a.username              as       author
+            fi.filename                 as          cover,
+            count(mp.music_id)          as          music_count,
+            a.username                  as          author
         from playlist p
             left join account a on p.creator = a.id
             left join music_playlist mp on p.id = mp.playlist_id
+            left join file_info fi on p.cover_file_id = fi.id
         <where>
             and p.accessible = true
             <if test="key != null and key != ''">and (p.title like #{key} or a.username like #{key})</if>
         </where>
-        group by p.id, p.title, p.cover, a.username
+        group by p.id, p.title, fi.id, a.username
         order by id desc
         <if test="pageParam != null">
             limit #{pageParam.size} offset #{pageParam.offset};
