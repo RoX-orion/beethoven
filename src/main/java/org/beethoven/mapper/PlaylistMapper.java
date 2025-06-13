@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.ibatis.annotations.Param;
 import org.beethoven.pojo.PageParam;
 import org.beethoven.pojo.entity.Playlist;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.pojo.vo.PlaylistVo;
 
 import java.util.List;
@@ -23,8 +23,8 @@ public interface PlaylistMapper extends BaseMapper<Playlist> {
                                      @NotNull @Param("size") Integer size,
                                      @Param("userId") Long userId);
 
-    List<MusicVo> getPlaylistMusic(@Param("playlistId") Long playlistId,
-                                   @Param("pageParam") PageParam pageParam);
+    List<MusicInfo> getPlaylistMusic(@Param("playlistId") Long playlistId,
+                                     @Param("pageParam") PageParam pageParam);
 
     PlaylistVo getPlaylistInfo(@Param("playlistId") Long playlistId);
 

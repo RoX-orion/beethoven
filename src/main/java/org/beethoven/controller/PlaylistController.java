@@ -6,7 +6,7 @@ import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.service.PlaylistService;
 import org.springframework.web.bind.annotation.*;
@@ -50,10 +50,10 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "music", method = RequestMethod.GET)
-    public ApiResult<List<MusicVo>> getPlaylistMusic(@RequestParam("playlistId") Long playlistId,
-                                                     @RequestParam(value = "page", required = false) Integer page,
-                                                     @RequestParam(value = "size", required = false) Integer size) {
-        List<MusicVo> playListMusic = playlistService.getPlaylistMusic(playlistId, page, size);
+    public ApiResult<List<MusicInfo>> getPlaylistMusic(@RequestParam("playlistId") Long playlistId,
+                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                       @RequestParam(value = "size", required = false) Integer size) {
+        List<MusicInfo> playListMusic = playlistService.getPlaylistMusic(playlistId, page, size);
 
         return ApiResult.ok(playListMusic);
     }

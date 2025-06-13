@@ -15,7 +15,7 @@ import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.*;
 import org.beethoven.pojo.enums.StorageProvider;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
@@ -148,7 +148,7 @@ public class PlaylistService {
         return ApiResult.ok();
     }
 
-    public List<MusicVo> getPlaylistMusic(Long playlistId, Integer page, Integer size) {
+    public List<MusicInfo> getPlaylistMusic(Long playlistId, Integer page, Integer size) {
         PageParam pageParam = Helpers.buildPageParam(page, size);
 
         return playlistMapper.getPlaylistMusic(playlistId, pageParam);

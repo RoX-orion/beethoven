@@ -19,7 +19,7 @@
         limit #{size} offset #{offset};
     </select>
 
-    <select id="getPlaylistMusic" resultType="org.beethoven.pojo.vo.MusicVo">
+    <select id="getPlaylistMusic" resultType="org.beethoven.pojo.vo.MusicInfo">
         select
             m.id,
             m.name,

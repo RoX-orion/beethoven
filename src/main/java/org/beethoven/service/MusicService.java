@@ -30,7 +30,7 @@ import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.*;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicManagement;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.BeanUtils;
@@ -243,25 +243,25 @@ public class MusicService {
 //        }
     }
 
-    public List<MusicVo> searchMusic(SearchDTO searchDTO) {
+    public List<MusicInfo> searchMusic(SearchDTO searchDTO) {
         int offset = (searchDTO.getPage() - 1) * searchDTO.getSize();
         return musicMapper.searchMusic(offset, searchDTO.getSize(), Helpers.buildFuzzySearchParam(searchDTO.getKey()));
     }
 
-    public MusicVo getMusicInfo(Long id) {
+    public MusicInfo getMusicInfo(Long id) {
         Music music = musicMapper.selectById(id);
         if (music == null) {
             throw new BeethovenException("音乐不存在！");
         }
-        MusicVo musicVo = new MusicVo();
-        BeanUtils.copyProperties(music, musicVo);
+        MusicInfo musicInfo = new MusicInfo();
+        BeanUtils.copyProperties(music, musicInfo);
         FileInfo musicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
         if (musicFileInfo != null)
-            musicVo.link = musicFileInfo.getFilename();
+            musicInfo.link = musicFileInfo.getFilename();
         FileInfo coverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());
         if (coverFileInfo != null)
-            musicVo.cover = coverFileInfo.getFilename();
-        return musicVo;
+            musicInfo.cover = coverFileInfo.getFilename();
+        return musicInfo;
     }
 
     public PageInfo<MusicManagement> getManageMusicList(@Valid SearchDTO searchDTO) {

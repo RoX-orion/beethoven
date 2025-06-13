@@ -13,7 +13,7 @@ import org.beethoven.lib.annotation.SplicingValue;
  */
 
 @Data
-public class MusicVo {
+public class MusicInfo {
 
     public Long id;
 

@@ -11,7 +11,7 @@ import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
 import org.beethoven.pojo.vo.MusicManagement;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,15 +50,15 @@ public class MusicController {
     }
 
     @RequestMapping(value = "searchMusic", method = RequestMethod.GET)
-    public ApiResult<List<MusicVo>> searchMusic(@Valid SearchDTO searchDTO) {
-        List<MusicVo> musicVoList = musicService.searchMusic(searchDTO);
+    public ApiResult<List<MusicInfo>> searchMusic(@Valid SearchDTO searchDTO) {
+        List<MusicInfo> musicInfoList = musicService.searchMusic(searchDTO);
 
-        return ApiResult.ok(musicVoList);
+        return ApiResult.ok(musicInfoList);
     }
 
     @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
-    public ApiResult<MusicVo> getMusicInfo(@PathVariable Long id) {
-        MusicVo musicInfo = musicService.getMusicInfo(id);
+    public ApiResult<MusicInfo> getMusicInfo(@PathVariable Long id) {
+        MusicInfo musicInfo = musicService.getMusicInfo(id);
 
         return ApiResult.ok(musicInfo);
     }

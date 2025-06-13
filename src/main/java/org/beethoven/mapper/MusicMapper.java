@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.beethoven.pojo.entity.Music;
 import org.beethoven.pojo.vo.MusicManagement;
-import org.beethoven.pojo.vo.MusicVo;
+import org.beethoven.pojo.vo.MusicInfo;
 
 import java.util.List;
 
@@ -18,9 +18,9 @@ import java.util.List;
 
 public interface MusicMapper extends BaseMapper<Music> {
 
-    List<MusicVo> searchMusic(@Param("offset") int offset,
-                              @Param("size") Integer size,
-                              @Param("key") String key);
+    List<MusicInfo> searchMusic(@Param("offset") int offset,
+                                @Param("size") Integer size,
+                                @Param("key") String key);
 
     List<MusicManagement> getManageMusicList(@Param("offset") int offset,
                                              @Param("size") Integer size,
