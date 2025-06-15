@@ -31,7 +31,7 @@ public class SettingService {
 
     public void updateSetting(Setting setting) {
         if (setting.getUserId() == null) return;
-        settingMapper.updateById(setting);
+        settingMapper.insertOrUpdate(setting);
     }
 
     public void addSetting(Long userId) {
