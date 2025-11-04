@@ -1,3 +1,3 @@
 #pragma once
 
-int get_duration(char *path);
+double get_duration(const char *path);

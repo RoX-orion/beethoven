@@ -18,16 +18,24 @@ public class Constant {
     private Constant() {}
 
     public static final List<String> SUPPORT_AUDIO_MIME = Lists.newArrayList(
-            "audio/mpeg", "audio/wav", "audio/aac",
-            "audio/vnd.dlna.adts", "audio/webm", "audio/x-m4a"
+            "audio/mpeg",
+            "audio/wav",
+            "audio/aac",
+            "audio/vnd.dlna.adts",
+            "audio/webm",
+            "audio/x-m4a",
+            "audio/flac"
     );
 
     public static final List<String> SUPPORT_IMAGE_MIME = Lists.newArrayList(
-            "image/png", "image/jpeg", "image/webp"
+            "image/png",
+            "image/jpeg",
+            "image/webp"
     );
 
     public static final List<String> SUPPORT_VIDEO_MIME = Lists.newArrayList(
-            "video/mp4", "video/webm"
+            "video/mp4",
+            "video/webm"
     );
 
     public static final String MUSIC_DIR = "music/";
