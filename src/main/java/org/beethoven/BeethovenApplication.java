@@ -1,14 +1,14 @@
 package org.beethoven;
 
-import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+//import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@NacosPropertySource(dataId = "beethoven", autoRefreshed = true)
+//@EnableDiscoveryClient
 public class BeethovenApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(BeethovenApplication.class, args);
     }
 

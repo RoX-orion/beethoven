@@ -10,13 +10,16 @@ import okhttp3.*;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.exception.AuthenticationException;
 import org.beethoven.mapper.AccountMapper;
+import org.beethoven.mapper.ConfigMapper;
 import org.beethoven.pojo.OAuth2Info;
 import org.beethoven.pojo.dto.OAuth2Login;
 import org.beethoven.pojo.entity.Account;
+import org.beethoven.pojo.entity.Config;
 import org.beethoven.pojo.enums.UserType;
 import org.beethoven.pojo.vo.AccountVo;
 import org.beethoven.util.Helpers;
 import org.beethoven.util.RequestUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,17 +62,23 @@ public class AuthService {
     @Resource
     private SettingService settingService;
 
-    public OAuth2Info getOAuth2Info(UserType userType) throws JsonProcessingException {
+    @Resource
+    private ConfigMapper configMapper;
+
+    @Value("${oauth2.github.client-id}")
+    private String clientId;
+
+    @Value("${oauth2.github.redirect-uri}")
+    private String redirectUri;
+
+    public OAuth2Info getOAuth2Info(UserType userType) {
+        OAuth2Info oauth2Info = new OAuth2Info();
         if (UserType.GITHUB == userType) {
-            String value = redisTemplate.opsForValue().get(Constant.PREFIX.CONFIG + "oauth2Info");
-            OAuth2Info oauth2Info = mapper.readValue(value, new TypeReference<>() {
-            });
-            if (oauth2Info != null) {
-                oauth2Info.setState(Helpers.getRandomString(6));
-            }
-            return oauth2Info;
+            oauth2Info.setClientId(clientId);
+            oauth2Info.setRedirectUri(redirectUri);
+            oauth2Info.setState(Helpers.getRandomString(6));
         }
-        return null;
+        return oauth2Info;
     }
 
     @Transactional
@@ -78,15 +87,13 @@ public class AuthService {
         AccountVo accountVo = new AccountVo();
         if (oauth2Login.getType() == UserType.GITHUB) {
             account.setUserType(UserType.GITHUB);
-            String secret = redisTemplate.opsForValue().get(Constant.PREFIX.GITHUB_CLIENT_SECRET);
-            String value = redisTemplate.opsForValue().get(Constant.PREFIX.CONFIG + "oauth2Info");
-            OAuth2Info oauth2Info = mapper.readValue(value, new TypeReference<>() {});
-            if (!StringUtils.hasText(secret) || oauth2Info == null) {
-                throw new AuthenticationException("Login error!");
+            Config githubClientSecret = configMapper.selectOne(new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.PREFIX.GITHUB_CLIENT_SECRET));
+            if (githubClientSecret == null || !StringUtils.hasText(githubClientSecret.getConfigValue()) || !StringUtils.hasText(clientId)) {
+                throw new AuthenticationException("Load login info error!");
             }
             RequestBody accessTokenRequestBody = new FormBody.Builder()
-                    .add("client_id", oauth2Info.getClientId())
-                    .add("client_secret", secret)
+                    .add("client_id", clientId)
+                    .add("client_secret", githubClientSecret.getConfigValue())
                     .add("code", oauth2Login.getCode())
                     .build();
             Request accessTokenRequest = new Request.Builder()
@@ -100,14 +107,14 @@ public class AuthService {
                     Map<String, String> accessTokenResponseBody = Helpers.getBodyAsMap(body.string());
                     accessToken = accessTokenResponseBody.get("access_token");
                     if (!StringUtils.hasText(accessToken)) {
-                        throw new AuthenticationException("get access token error!");
+                        throw new AuthenticationException("Get access token error!");
                     }
                 } else {
-                    throw new AuthenticationException("get access token error!");
+                    throw new AuthenticationException("Get access token error!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new AuthenticationException("Login error!");
+                throw new AuthenticationException("Fetch access token error!");
             }
 
             Request userInfoRequest = new Request.Builder()
@@ -123,11 +130,11 @@ public class AuthService {
                     account.setEmail(userInfoBody.get("email"));
                     account.setAvatar(userInfoBody.get("avatar_url"));
                 } else {
-                    throw new AuthenticationException("get user info error!");
+                    throw new AuthenticationException("Get user info error!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new AuthenticationException("Login error!");
+                throw new AuthenticationException("Fetch user info error!");
             }
 
             if (!StringUtils.hasText(account.getEmail())) {
@@ -141,7 +148,7 @@ public class AuthService {
                         List<Map<String, String>> emailList = mapper.readValue(emailResponse.body().string(), new TypeReference<>() {
                         });
                         for (Map<String, String> emailInfo : emailList) {
-                            String primary = emailInfo.get("");
+                            String primary = emailInfo.get("primary");
                             if (StringUtils.hasText(primary) && "true".equals(primary)) {
                                 account.setEmail(emailInfo.get("email"));
                                 break;
@@ -150,7 +157,7 @@ public class AuthService {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new AuthenticationException("Can't get your email address!");
+                    throw new AuthenticationException("Can't fetch your email address!");
                 }
             }
 
@@ -177,6 +184,7 @@ public class AuthService {
         }
         redisTemplate.opsForValue().set(Constant.PREFIX.USER_INFO + accountVo.getToken(), mapper.writeValueAsString(accountVo), Constant.TOKEN_EXPIRE_TIME, TimeUnit.DAYS);
         redisTemplate.opsForValue().set(Constant.PREFIX.USER_ID + accountVo.getToken(), String.valueOf(accountVo.getId()), Constant.TOKEN_EXPIRE_TIME, TimeUnit.DAYS);
+
         return accountVo;
     }
 

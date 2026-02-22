@@ -63,9 +63,10 @@ public class Constant {
     public static final int TOKEN_EXPIRE_TIME = 30;
 
     public static class PREFIX {
+
         public static final String CONFIG = "config:";
 
-        public static final String GITHUB_CLIENT_SECRET = "oauth2:secret:github";
+        public static final String GITHUB_CLIENT_SECRET = "GITHUB_CLIENT_SECRET";
 
         public static final String USER_INFO = "user:info:";
 
