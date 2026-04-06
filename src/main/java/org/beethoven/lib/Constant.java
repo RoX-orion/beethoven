@@ -58,7 +58,7 @@ public class Constant {
 
     public static final String USER_DIR = System.getProperty("user.dir");
 
-    public static final String DEFAULT_STORAGE = StorageProvider.MINIO.name();
+    public static final StorageProvider DEFAULT_STORAGE = StorageProvider.S3;
 
     public static final int TOKEN_EXPIRE_TIME = 30;
 

@@ -16,7 +16,7 @@ import org.beethoven.lib.exception.StorageException;
 public enum StorageProvider implements IEnum<String> {
 
     QINIU("七牛云"),
-    MINIO("MinIO");
+    S3("S3");
 
     private final String name;
 

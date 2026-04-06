@@ -2,7 +2,7 @@ package org.beethoven.lib;
 
 import lombok.Setter;
 import org.beethoven.lib.exception.StorageException;
-import org.beethoven.pojo.entity.Storage;
+import org.beethoven.pojo.entity.StorageInfo;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -19,15 +19,15 @@ public class GlobalConfig {
     public static String defaultMusicCover;
 
     @Setter
-    private static Storage storage;
+    private static StorageInfo storageInfo;
 
     public static String endpoint;
 
-    public static Storage getStorage() {
-        if (storage == null) {
-            throw new StorageException("Storage config is null!");
+    public static StorageInfo getStorageInfo() {
+        if (storageInfo == null) {
+            throw new StorageException("StorageInfo config is null!");
         }
-        return storage;
+        return storageInfo;
     }
 
     public static String getValue() {

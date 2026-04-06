@@ -28,9 +28,8 @@ import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.*;
-import org.beethoven.pojo.enums.StorageProvider;
-import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.pojo.vo.MusicInfo;
+import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.util.FileUtil;
 import org.beethoven.util.Helpers;
 import org.springframework.beans.BeanUtils;
@@ -128,7 +127,7 @@ public class MusicService {
             musicFileInfo.setSize(musicFile.getSize());
             musicFileInfo.setMime(musicMime);
             musicFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
-            musicFileInfo.setStorage(StorageProvider.MINIO);
+            musicFileInfo.setStorage(storageContext.getProvider());
 
             FileInfo coverFileInfo = new FileInfo();
             coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
@@ -136,7 +135,7 @@ public class MusicService {
             coverFileInfo.setSize(coverFile.getSize());
             coverFileInfo.setMime(coverMime);
             coverFileInfo.setChecksum("");
-            coverFileInfo.setStorage(StorageProvider.MINIO);
+            coverFileInfo.setStorage(storageContext.getProvider());
 
             fileInfoMapper.insert(musicFileInfo);
             fileInfoMapper.insert(coverFileInfo);
@@ -248,7 +247,7 @@ public class MusicService {
         return musicMapper.searchMusic(offset, searchDTO.getSize(), Helpers.buildFuzzySearchParam(searchDTO.getKey()));
     }
 
-    public MusicInfo getMusicInfo(Long id) {
+    public MusicInfo getMusicInfo(String id) {
         Music music = musicMapper.selectById(id);
         if (music == null) {
             throw new BeethovenException("音乐不存在！");
@@ -277,7 +276,7 @@ public class MusicService {
     }
 
     @Transactional
-    public ApiResult<String> deleteMusic(Long musicId) {
+    public ApiResult<String> deleteMusic(String musicId) {
         Music music = musicMapper.selectById(musicId);
         if (music == null) {
             return ApiResult.fail("Music is not exist!");
@@ -298,7 +297,7 @@ public class MusicService {
 
     @Transactional(rollbackFor = Exception.class)
     public ApiResult<String> updateMusic(UpdateMusicDTO updateMusicDTO) throws IOException {
-        Long userId = authContext.getUserId();
+        String userId = authContext.getUserId();
         if (userId == null)
             return ApiResult.expired("Get user info fail!");
         if (updateMusicDTO.getMusicId() == null)
@@ -368,7 +367,7 @@ public class MusicService {
                 musicFileInfo.setSize(musicFile.getSize());
                 musicFileInfo.setMime(musicMime);
                 musicFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
-                musicFileInfo.setStorage(StorageProvider.MINIO);
+                musicFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(musicFileInfo);
 
                 StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
@@ -429,7 +428,7 @@ public class MusicService {
                 videoFileInfo.setSize(videoFile.getSize());
                 videoFileInfo.setMime(videoMime);
                 videoFileInfo.setChecksum(Files.asByteSource(new File(fileName)).hash(Hashing.sha256()).toString());
-                videoFileInfo.setStorage(StorageProvider.MINIO);
+                videoFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(videoFileInfo);
 
                 if (video.getVideoFileId() != null) {
@@ -469,7 +468,7 @@ public class MusicService {
                 coverFileInfo.setSize(coverFile.getSize());
                 coverFileInfo.setMime(coverMime);
                 coverFileInfo.setChecksum("");
-                coverFileInfo.setStorage(StorageProvider.MINIO);
+                coverFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);

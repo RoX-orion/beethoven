@@ -6,7 +6,7 @@ import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
 import org.beethoven.mapper.StorageMapper;
 import org.beethoven.pojo.dto.StorageDTO;
-import org.beethoven.pojo.entity.Storage;
+import org.beethoven.pojo.entity.StorageInfo;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.CommonVo;
 import org.springframework.beans.BeanUtils;
@@ -36,28 +36,28 @@ public class StorageService {
                 .toList();
     }
 
-    public Storage getStorageInfo(String provider) {
+    public StorageInfo getStorageInfo(String provider) {
         return storageMapper.selectOne(
-                new LambdaQueryWrapper<Storage>().eq(Storage::getProvider, provider)
+                new LambdaQueryWrapper<StorageInfo>().eq(StorageInfo::getProvider, provider)
         );
     }
 
     public void configureStorage(StorageDTO storageDTO) {
         StorageProvider provider = StorageProvider.getProvider(storageDTO.getProvider());
-        Storage storage = new Storage();
-        BeanUtils.copyProperties(storageDTO, storage);
-        storage.setProvider(provider);
-        storageMapper.insertOrUpdate(storage);
+        StorageInfo storageInfo = new StorageInfo();
+        BeanUtils.copyProperties(storageDTO, storageInfo);
+        storageInfo.setProvider(provider);
+        storageMapper.insertOrUpdate(storageInfo);
     }
 
-    public void refreshStorageConfig(String provider) {
-        Storage storage = storageMapper.selectOne(
-                new LambdaQueryWrapper<Storage>().eq(Storage::getProvider, provider)
+    public void refreshStorageConfig(StorageProvider provider) {
+        StorageInfo storageInfo = storageMapper.selectOne(
+                new LambdaQueryWrapper<StorageInfo>().eq(StorageInfo::getProvider, provider)
         );
-        if (storage == null) {
-            throw new StorageException("Not configure storage!");
+        if (storageInfo == null) {
+            throw new StorageException("Not configure storageInfo!");
         }
-        GlobalConfig.endpoint = storage.getEndpoint();
-        GlobalConfig.setStorage(storage);
+        GlobalConfig.endpoint = storageInfo.getEndpoint();
+        GlobalConfig.setStorageInfo(storageInfo);
     }
 }
