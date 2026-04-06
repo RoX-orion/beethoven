@@ -14,7 +14,6 @@ import org.beethoven.pojo.PageParam;
 import org.beethoven.pojo.dto.MusicPlaylistDTO;
 import org.beethoven.pojo.dto.PlaylistDTO;
 import org.beethoven.pojo.entity.*;
-import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.MusicInfo;
 import org.beethoven.pojo.vo.PlaylistVo;
 import org.beethoven.util.FileUtil;
@@ -63,7 +62,7 @@ public class PlaylistService {
     private AuthContext authContext;
 
     public List<PlaylistVo> getSelfPlayList(PlaylistDTO playlistDTO) {
-        Long userId = authContext.getUserId();
+        String userId = authContext.getUserId();
         if (userId == null) {
             return Lists.newArrayList();
         }
@@ -73,7 +72,7 @@ public class PlaylistService {
 
     @Transactional
     public ApiResult<String> addPlaylist(PlaylistDTO playlistInfo) throws IOException {
-        Long userId = authContext.getUserId();
+        String userId = authContext.getUserId();
         if (userId == null)
             throw new AuthenticationException("Get null userId");
         Playlist playlist = new Playlist();
@@ -96,7 +95,7 @@ public class PlaylistService {
                 coverFileInfo.setSize(coverFile.getSize());
                 coverFileInfo.setMime(coverMime);
                 coverFileInfo.setChecksum("");
-                coverFileInfo.setStorage(StorageProvider.MINIO);
+                coverFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
@@ -123,7 +122,7 @@ public class PlaylistService {
         if (!musicMapper.exists(new LambdaQueryWrapper<Music>().eq(Music::getId, musicPlaylistDTO.getMusicId()))) {
             return ApiResult.fail("歌曲不存在！");
         }
-        for (Long playlistId : musicPlaylistDTO.getPlaylistIds()) {
+        for (String playlistId : musicPlaylistDTO.getPlaylistIds()) {
             Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistId));
             if (Objects.isNull(playlist)) {
                 return ApiResult.fail("歌单不存在！");
@@ -148,13 +147,13 @@ public class PlaylistService {
         return ApiResult.ok();
     }
 
-    public List<MusicInfo> getPlaylistMusic(Long playlistId, Integer page, Integer size) {
+    public List<MusicInfo> getPlaylistMusic(String playlistId, Integer page, Integer size) {
         PageParam pageParam = Helpers.buildPageParam(page, size);
 
         return playlistMapper.getPlaylistMusic(playlistId, pageParam);
     }
 
-    public PlaylistVo getPlaylistInfo(Long playlistId) {
+    public PlaylistVo getPlaylistInfo(String playlistId) {
         return playlistMapper.getPlaylistInfo(playlistId);
     }
 
@@ -183,7 +182,7 @@ public class PlaylistService {
                 coverFileInfo.setSize(coverFile.getSize());
                 coverFileInfo.setMime(coverMime);
                 coverFileInfo.setChecksum("");
-                coverFileInfo.setStorage(StorageProvider.MINIO);
+                coverFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverFile.getInputStream(), ossCoverName);
@@ -211,8 +210,8 @@ public class PlaylistService {
         return playlistMapper.getHomePlaylist(key, pageParam);
     }
 
-    public ApiResult<String> removeMusic(Long playlistId, Long musicId) {
-        Long userId = authContext.getUserId();
+    public ApiResult<String> removeMusic(String playlistId, String musicId) {
+        String userId = authContext.getUserId();
         if (userId == null) {
             return ApiResult.expired(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }

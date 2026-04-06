@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @EqualsAndHashCode(callSuper = true)
 public class PlaylistDTO extends PageDTO {
 
-    private Long id;
+    private String id;
 
     @Size(min = 1, max = 32)
     @NotBlank(message = "歌单名称不能为空")

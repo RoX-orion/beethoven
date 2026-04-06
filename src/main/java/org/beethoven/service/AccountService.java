@@ -37,7 +37,7 @@ public class AccountService {
     @Resource
     private ObjectMapper mapper;
 
-    public ApiResult<AccountVo> getAccountInfo(Long id) {
+    public ApiResult<AccountVo> getAccountInfo(String id) {
         Account account = accountMapper.selectById(id);
         AccountVo accountVo = new AccountVo();
         BeanUtils.copyProperties(account, accountVo);

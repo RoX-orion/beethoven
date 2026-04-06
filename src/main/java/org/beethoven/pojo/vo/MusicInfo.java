@@ -15,7 +15,7 @@ import org.beethoven.lib.annotation.SplicingValue;
 @Data
 public class MusicInfo {
 
-    public Long id;
+    public String id;
 
     public String name;
 
@@ -35,5 +35,5 @@ public class MusicInfo {
 
     public String album;
 
-    public Long videoId;
+    public String videoId;
 }

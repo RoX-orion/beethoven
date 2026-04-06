@@ -50,7 +50,7 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "music", method = RequestMethod.GET)
-    public ApiResult<List<MusicInfo>> getPlaylistMusic(@RequestParam("playlistId") Long playlistId,
+    public ApiResult<List<MusicInfo>> getPlaylistMusic(@RequestParam("playlistId") String playlistId,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "size", required = false) Integer size) {
         List<MusicInfo> playListMusic = playlistService.getPlaylistMusic(playlistId, page, size);
@@ -59,7 +59,7 @@ public class PlaylistController {
     }
 
     @RequestMapping(value = "info", method = RequestMethod.GET)
-    public ApiResult<PlaylistVo> getPlaylistInfo(@RequestParam("playlistId") Long playlistId) {
+    public ApiResult<PlaylistVo> getPlaylistInfo(@RequestParam("playlistId") String playlistId) {
         PlaylistVo playlistVo = playlistService.getPlaylistInfo(playlistId);
 
         return ApiResult.ok(playlistVo);
@@ -81,8 +81,8 @@ public class PlaylistController {
 
     @Permission
     @RequestMapping(value = "removeMusic/{playlistId}/{musicId}", method = RequestMethod.DELETE)
-    public ApiResult<String> removeMusic(@PathVariable("playlistId") Long playlistId,
-                                         @PathVariable("musicId") Long musicId) {
+    public ApiResult<String> removeMusic(@PathVariable String playlistId,
+                                         @PathVariable String musicId) {
         return playlistService.removeMusic(playlistId, musicId);
     }
 }

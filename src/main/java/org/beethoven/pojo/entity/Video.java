@@ -18,15 +18,15 @@ import java.time.LocalDateTime;
 public class Video {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
-    private Long videoFileId;
+    private String videoFileId;
 
     private int duration;
 
-    private Long creator;
+    private String creator;
 
-    private Long updater;
+    private String updater;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

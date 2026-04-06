@@ -29,7 +29,7 @@ public class VideoController {
     private VideoService videoService;
 
     @RequestMapping(value = "info/{videoId}", method = RequestMethod.GET)
-    public ApiResult<VideoVo> getVideoInfo(@PathVariable("videoId") Long videoId) {
+    public ApiResult<VideoVo> getVideoInfo(@PathVariable String videoId) {
         VideoVo videoVo = videoService.getVideoInfo(videoId);
 
         return ApiResult.ok(videoVo);

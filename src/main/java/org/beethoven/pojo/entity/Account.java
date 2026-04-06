@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class Account {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     private String email;
 

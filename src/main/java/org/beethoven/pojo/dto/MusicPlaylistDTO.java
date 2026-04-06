@@ -16,8 +16,8 @@ import lombok.Data;
 public class MusicPlaylistDTO {
 
     @NotNull(message = "音乐不能为空!")
-    private Long musicId;
+    private String musicId;
 
     @NotEmpty(message = "歌单不能为空!")
-    private Long[] playlistIds;
+    private String[] playlistIds;
 }

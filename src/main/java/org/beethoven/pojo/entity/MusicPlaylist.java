@@ -18,11 +18,11 @@ import java.time.LocalDateTime;
 public class MusicPlaylist {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
-    private Long musicId;
+    private String musicId;
 
-    private Long playlistId;
+    private String playlistId;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

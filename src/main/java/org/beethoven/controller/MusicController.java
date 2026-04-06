@@ -10,8 +10,8 @@ import org.beethoven.pojo.dto.SearchDTO;
 import org.beethoven.pojo.dto.UpdateMusicDTO;
 import org.beethoven.pojo.dto.UploadMusicDTO;
 import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.pojo.vo.MusicInfo;
+import org.beethoven.pojo.vo.MusicManagement;
 import org.beethoven.service.MusicService;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,7 +57,7 @@ public class MusicController {
     }
 
     @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
-    public ApiResult<MusicInfo> getMusicInfo(@PathVariable Long id) {
+    public ApiResult<MusicInfo> getMusicInfo(@PathVariable String id) {
         MusicInfo musicInfo = musicService.getMusicInfo(id);
 
         return ApiResult.ok(musicInfo);
@@ -73,7 +73,7 @@ public class MusicController {
 
     @Permission
     @RequestMapping(value = "manage/deleteMusic/{musicId}", method = RequestMethod.DELETE)
-    public ApiResult<String> deleteMusic(@PathVariable("musicId") Long musicId) {
+    public ApiResult<String> deleteMusic(@PathVariable String musicId) {
         return musicService.deleteMusic(musicId);
     }
 

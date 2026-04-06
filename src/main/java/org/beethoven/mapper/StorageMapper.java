@@ -1,7 +1,7 @@
 package org.beethoven.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.beethoven.pojo.entity.Storage;
+import org.beethoven.pojo.entity.StorageInfo;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -11,5 +11,5 @@ import org.beethoven.pojo.entity.Storage;
  * @date: 2024-11-30
  */
 
-public interface StorageMapper extends BaseMapper<Storage> {
+public interface StorageMapper extends BaseMapper<StorageInfo> {
 }

@@ -25,7 +25,7 @@ public class VideoService {
     @Resource
     private VideoMapper videoMapper;
 
-    public VideoVo getVideoInfo(Long videoId) {
+    public VideoVo getVideoInfo(String videoId) {
         return videoMapper.getVideoInfo(videoId);
     }
 

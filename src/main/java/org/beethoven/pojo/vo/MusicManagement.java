@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 public class MusicManagement {
 
-    public Long id;
+    public String id;
 
     public String name;
 
@@ -42,7 +42,7 @@ public class MusicManagement {
 
     private Integer uploaderId;
 
-    private Long videoId;
+    private String videoId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;

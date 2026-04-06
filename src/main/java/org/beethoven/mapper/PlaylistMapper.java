@@ -19,14 +19,15 @@ import java.util.List;
  */
 
 public interface PlaylistMapper extends BaseMapper<Playlist> {
+
     List<PlaylistVo> getSelfPlayList(@Param("offset") int offset,
                                      @NotNull @Param("size") Integer size,
-                                     @Param("userId") Long userId);
+                                     @Param("userId") String userId);
 
-    List<MusicInfo> getPlaylistMusic(@Param("playlistId") Long playlistId,
+    List<MusicInfo> getPlaylistMusic(@Param("playlistId") String playlistId,
                                      @Param("pageParam") PageParam pageParam);
 
-    PlaylistVo getPlaylistInfo(@Param("playlistId") Long playlistId);
+    PlaylistVo getPlaylistInfo(@Param("playlistId") String playlistId);
 
     List<PlaylistVo> getHomePlaylist(@Param("key") String key,
                                      @Param("pageParam") PageParam pageParam);

@@ -19,7 +19,7 @@ import lombok.Data;
 public class Setting {
 
     @TableId
-    private Long userId;
+    private String userId;
 
     @TableField(updateStrategy = FieldStrategy.NOT_EMPTY)
     private Boolean isMute;
@@ -28,7 +28,7 @@ public class Setting {
     private int volume;
 
     @TableField(updateStrategy = FieldStrategy.NOT_EMPTY)
-    private Long musicId;
+    private String musicId;
 
     @TableField(value = "\"current_time\"", updateStrategy = FieldStrategy.NOT_EMPTY)
     private int currentTime;

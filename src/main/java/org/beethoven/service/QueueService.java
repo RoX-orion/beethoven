@@ -14,7 +14,7 @@ public class QueueService {
     @Resource
     private PlaylistMapper playlistMapper;
 
-    public List<MusicInfo> getQueue(Long playlistId, PlayMode playModel) {
+    public List<MusicInfo> getQueue(String playlistId, PlayMode playModel) {
         List<MusicInfo> musicInfoList = null;
         if (playlistId != null) {
             musicInfoList = playlistMapper.getPlaylistMusic(playlistId, null);

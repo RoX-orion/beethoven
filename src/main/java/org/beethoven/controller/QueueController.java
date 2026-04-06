@@ -22,7 +22,7 @@ public class QueueController {
     private QueueService queueService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ApiResult<List<MusicInfo>> getQueue(@RequestParam("playlistId") Long playlistId,
+    public ApiResult<List<MusicInfo>> getQueue(@RequestParam("playlistId") String playlistId,
                                     @RequestParam("playModel") @Valid @NotNull PlayMode playModel) {
         List<MusicInfo> musicInfoList = queueService.getQueue(playlistId, playModel);
 

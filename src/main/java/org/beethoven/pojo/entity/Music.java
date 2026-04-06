@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class Music {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -28,9 +28,9 @@ public class Music {
 
     private int duration;
 
-    private Long musicFileId;
+    private String musicFileId;
 
-    private Long coverFileId;
+    private String coverFileId;
 
     private String hash;
 
@@ -38,7 +38,7 @@ public class Music {
 
     private int shardingSize;
 
-    private Long videoId;
+    private String videoId;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

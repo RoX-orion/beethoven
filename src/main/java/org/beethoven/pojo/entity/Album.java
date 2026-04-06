@@ -18,13 +18,13 @@ import java.time.LocalDateTime;
 public class Album {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     private String name;
 
-    private Long coverFileId;
+    private String coverFileId;
 
-    private Long creator;
+    private String creator;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

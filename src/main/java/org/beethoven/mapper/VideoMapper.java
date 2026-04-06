@@ -18,7 +18,7 @@ import java.util.List;
 
 public interface VideoMapper extends BaseMapper<Video> {
 
-    VideoVo getVideoInfo(@Param("videoId") Long videoId);
+    VideoVo getVideoInfo(@Param("videoId") String videoId);
 
     List<VideoManagement> getManageVideoList(@Param("offset") int offset,
                                              @Param("size") Integer size,

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 public class VideoManagement {
 
-    private Long videoId;
+    private String videoId;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)
     private String link;

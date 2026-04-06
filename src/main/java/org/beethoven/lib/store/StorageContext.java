@@ -1,6 +1,7 @@
 package org.beethoven.lib.store;
 
 import jakarta.annotation.Resource;
+import lombok.Getter;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.pojo.enums.StorageProvider;
@@ -28,17 +29,21 @@ public class StorageContext {
 
     private Storage storage;
 
-    private final Map<String, Storage> ossMap = new HashMap<>();
+    @Getter
+    private StorageProvider provider;
+
+    private final Map<StorageProvider, Storage> ossMap = new HashMap<>();
 
     @Autowired
     public StorageContext(final Qiniu qiniu,
-                          final MinIO minIO) {
-        ossMap.put(StorageProvider.QINIU.name(), qiniu);
-        ossMap.put(StorageProvider.MINIO.name(), minIO);
+                          final S3 s3) {
+        ossMap.put(StorageProvider.QINIU, qiniu);
+        ossMap.put(StorageProvider.S3, s3);
     }
 
-    public void refresh(String provider) {
-        storage = ossMap.get(provider) != null ? ossMap.get(provider) : applicationContext.getBean(MinIO.class);
+    public void refresh(StorageProvider provider) {
+        this.provider = provider;
+        storage = ossMap.get(provider) != null ? ossMap.get(provider) : applicationContext.getBean(S3.class);
         init();
     }
 
@@ -82,6 +87,6 @@ public class StorageContext {
     }
 
     public String getEndpoint() {
-        return GlobalConfig.getStorage().getEndpoint();
+        return GlobalConfig.getStorageInfo().getEndpoint();
     }
 }

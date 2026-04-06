@@ -15,7 +15,7 @@ import org.beethoven.lib.annotation.SplicingValue;
 @Data
 public class VideoVo {
 
-    private Long videoId;
+    private String videoId;
 
     @SplicingValue(Constant.ENDPOINT_PREFIX)
     public String link;

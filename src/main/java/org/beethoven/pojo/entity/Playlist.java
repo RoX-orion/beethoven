@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
 public class Playlist {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
-    private Long creator;
+    private String creator;
 
     private String title;
 
@@ -32,7 +32,7 @@ public class Playlist {
 
     private Integer sequence;
 
-    private Long coverFileId;
+    private String coverFileId;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

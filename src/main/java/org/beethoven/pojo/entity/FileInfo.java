@@ -22,7 +22,7 @@ import java.util.List;
 public class FileInfo {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     private String originalFilename;
 

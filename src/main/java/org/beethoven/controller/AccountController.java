@@ -29,7 +29,7 @@ public class AccountController {
 
     @Permission
     @RequestMapping(value = "info/{id}", method = RequestMethod.GET)
-    public ApiResult<AccountVo> getAccountInfo(@PathVariable("id") Long id) {
+    public ApiResult<AccountVo> getAccountInfo(@PathVariable String id) {
         return accountService.getAccountInfo(id);
     }
 

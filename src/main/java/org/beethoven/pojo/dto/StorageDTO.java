@@ -16,7 +16,7 @@ import lombok.Data;
 public class StorageDTO {
 
     @NotNull
-    private Long id;
+    private String id;
 
     @NotBlank
     private String provider;

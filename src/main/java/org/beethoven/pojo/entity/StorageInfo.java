@@ -16,10 +16,10 @@ import org.beethoven.pojo.enums.StorageProvider;
 
 @Data
 @TableName("storage")
-public class Storage {
+public class StorageInfo {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     private StorageProvider provider;
 

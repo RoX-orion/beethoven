@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdateMusicDTO {
 
     @NotNull
-    private Long musicId;
+    private String musicId;
 
     private MultipartFile music;
 

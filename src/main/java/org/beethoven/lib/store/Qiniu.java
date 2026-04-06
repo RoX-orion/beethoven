@@ -8,6 +8,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.StorageException;
+import org.beethoven.pojo.entity.StorageInfo;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -29,12 +30,12 @@ public class Qiniu implements Storage {
 
     private BucketManager bucketManager;
 
-    private org.beethoven.pojo.entity.Storage storage;
+    private StorageInfo storageInfo;
 
     @Override
     public void init() {
-        storage = GlobalConfig.getStorage();
-        auth = Auth.create(storage.getAccessKey(), storage.getSecretKey());
+        storageInfo = GlobalConfig.getStorageInfo();
+        auth = Auth.create(storageInfo.getAccessKey(), storageInfo.getSecretKey());
 
         Configuration config = new Configuration();
         config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
@@ -45,7 +46,7 @@ public class Qiniu implements Storage {
 
     @Override
     public StorageResponse upload(InputStream inputStream, String fileName) {
-        String token = auth.uploadToken(storage.getBucket());
+        String token = auth.uploadToken(storageInfo.getBucket());
         StorageResponse response = new StorageResponse();
         try {
             Response uploadMusicResponse = uploadManager.put(inputStream, fileName, token, null, null);

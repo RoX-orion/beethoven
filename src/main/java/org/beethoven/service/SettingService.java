@@ -34,7 +34,7 @@ public class SettingService {
         settingMapper.insertOrUpdate(setting);
     }
 
-    public void addSetting(Long userId) {
+    public void addSetting(String userId) {
         if (userId == null) {
             throw new BeethovenException("User id can't be null when create setting!");
         }
