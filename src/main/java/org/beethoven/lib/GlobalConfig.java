@@ -14,23 +14,19 @@ import org.beethoven.pojo.entity.StorageInfo;
 
 public class GlobalConfig {
 
-    public static int shardingSize = Constant.DEFAULT_SHARDING_SIZE;
+    public static volatile int shardingSize = Constant.DEFAULT_SHARDING_SIZE;
 
-    public static String defaultMusicCover;
+    public static volatile String defaultMusicCover;
 
     @Setter
-    private static StorageInfo storageInfo;
+    private static volatile StorageInfo storageInfo;
 
-    public static String endpoint;
+    public static volatile String endpoint;
 
     public static StorageInfo getStorageInfo() {
         if (storageInfo == null) {
             throw new StorageException("StorageInfo config is null!");
         }
         return storageInfo;
-    }
-
-    public static String getValue() {
-        return null;
     }
 }

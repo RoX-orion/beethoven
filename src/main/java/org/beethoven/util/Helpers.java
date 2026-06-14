@@ -47,7 +47,8 @@ public class Helpers {
     }
 
     public static String getFileExtensionName(String fileName) {
-        int i = fileName.indexOf('.');
+        if (fileName == null) return "";
+        int i = fileName.lastIndexOf('.');
         if (i != -1) {
             return fileName.substring(i);
         }
@@ -68,9 +69,7 @@ public class Helpers {
         int length = 0;
 
         for (byte[] b : bytes) {
-            for (int j = 0; j < b.length; j++) {
-                length++;
-            }
+            length += b.length;
         }
 
         int i = 0;
@@ -139,11 +138,11 @@ public class Helpers {
 
     public static String checksum(InputStream inputStream) {
         byte[] hash;
-        try {
+        try (InputStream is = inputStream) {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192];
             int i;
-            while ((i = inputStream.read(buffer)) != -1) {
+            while ((i = is.read(buffer)) != -1) {
                 digest.update(buffer, 0, i);
             }
             hash = digest.digest();

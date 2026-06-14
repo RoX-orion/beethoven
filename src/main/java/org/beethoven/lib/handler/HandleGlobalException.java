@@ -75,21 +75,21 @@ public class HandleGlobalException {
     @ResponseBody
     @ExceptionHandler({BeethovenException.class, MediaException.class})
     public ApiResult<String> handleBeethovenException(Exception e) {
-        e.printStackTrace();
+        log.error("business exception: {}", e.getMessage(), e);
         return ApiResult.build(400, e.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(NoResourceFoundException.class)
     public ApiResult<String> noResourceFoundException(NoResourceFoundException e) {
-        e.printStackTrace();
+        log.error("resource not found: {}", e.getMessage());
         return ApiResult.fail(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name());
     }
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
     public ApiResult<String> error(Exception e) {
-        e.printStackTrace();
+        log.error("unexpected exception: {}", e.getMessage(), e);
         return ApiResult.error();
     }
 }

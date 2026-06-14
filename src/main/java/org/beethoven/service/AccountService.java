@@ -39,6 +39,9 @@ public class AccountService {
 
     public ApiResult<AccountVo> getAccountInfo(String id) {
         Account account = accountMapper.selectById(id);
+        if (account == null) {
+            return ApiResult.fail("Account not found!");
+        }
         AccountVo accountVo = new AccountVo();
         BeanUtils.copyProperties(account, accountVo);
 

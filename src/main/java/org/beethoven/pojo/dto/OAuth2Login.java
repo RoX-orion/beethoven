@@ -1,9 +1,9 @@
 package org.beethoven.pojo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.beethoven.pojo.enums.UserType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
