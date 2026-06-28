@@ -99,8 +99,8 @@ public class PlaylistService {
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
-                if (uploadCoverResponse.isOk) {
-                    coverFileInfo.setHash(uploadCoverResponse.hash);
+                if (uploadCoverResponse.isOk()) {
+                    coverFileInfo.setHash(uploadCoverResponse.getHash());
                 }
                 fileInfoMapper.updateById(coverFileInfo);
                 playlist.setCoverFileId(coverFileInfo.getId());
@@ -122,26 +122,27 @@ public class PlaylistService {
         if (!musicMapper.exists(new LambdaQueryWrapper<Music>().eq(Music::getId, musicPlaylistDTO.getMusicId()))) {
             return ApiResult.fail("歌曲不存在！");
         }
+
+        // 先校验所有歌单是否存在以及歌曲是否已存在，避免部分插入
         for (String playlistId : musicPlaylistDTO.getPlaylistIds()) {
             Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistId));
             if (Objects.isNull(playlist)) {
                 return ApiResult.fail("歌单不存在！");
             }
-
-            if (!musicPlaylistMapper.exists(
+            if (musicPlaylistMapper.exists(
                     new LambdaQueryWrapper<MusicPlaylist>()
                             .eq(MusicPlaylist::getMusicId, musicPlaylistDTO.getMusicId())
                             .eq(MusicPlaylist::getPlaylistId, playlistId))) {
-                MusicPlaylist musicPlaylist = new MusicPlaylist();
-                musicPlaylist.setMusicId(musicPlaylistDTO.getMusicId());
-                musicPlaylist.setPlaylistId(playlistId);
-
-                musicPlaylistMapper.insert(musicPlaylist);
-
-                playlistMapper.updateById(playlist);
-            } else {
                 return ApiResult.fail("歌曲在歌单中已存在!");
             }
+        }
+
+        // 校验通过后批量插入
+        for (String playlistId : musicPlaylistDTO.getPlaylistIds()) {
+            MusicPlaylist musicPlaylist = new MusicPlaylist();
+            musicPlaylist.setMusicId(musicPlaylistDTO.getMusicId());
+            musicPlaylist.setPlaylistId(playlistId);
+            musicPlaylistMapper.insert(musicPlaylist);
         }
 
         return ApiResult.ok();
@@ -186,8 +187,8 @@ public class PlaylistService {
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverFile.getInputStream(), ossCoverName);
-                if (uploadCoverResponse.isOk) {
-                    coverFileInfo.setHash(uploadCoverResponse.hash);
+                if (uploadCoverResponse.isOk()) {
+                    coverFileInfo.setHash(uploadCoverResponse.getHash());
                 }
                 fileInfoMapper.updateById(coverFileInfo);
                 playlist.setCoverFileId(coverFileInfo.getId());

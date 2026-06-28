@@ -38,13 +38,18 @@ public class WebSocketController {
 
     @OnClose
     public void onClose(CloseReason closeReason){
-        log.info("[websocket] 连接断开：id={}，reason={}", this.session.getId(),closeReason);
+        log.info("[websocket] 连接断开：id={}，reason={}", this.session != null ? this.session.getId() : "unknown", closeReason);
     }
 
     @OnError
-    public void onError(Throwable throwable) throws IOException {
-        log.info("[websocket] 连接异常：id={}，throwable={}", this.session.getId(), throwable.getMessage());
-
-        this.session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, throwable.getMessage()));
+    public void onError(Throwable throwable) {
+        log.error("[websocket] 连接异常：id={}，throwable={}", this.session != null ? this.session.getId() : "unknown", throwable.getMessage(), throwable);
+        try {
+            if (this.session != null && this.session.isOpen()) {
+                this.session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, throwable.getMessage()));
+            }
+        } catch (IOException e) {
+            log.error("[websocket] close session error", e);
+        }
     }
 }

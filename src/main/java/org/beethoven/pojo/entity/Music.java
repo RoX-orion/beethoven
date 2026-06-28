@@ -26,7 +26,7 @@ public class Music {
 
     private String album;
 
-    private int duration;
+    private Integer duration;
 
     private String musicFileId;
 
@@ -36,7 +36,7 @@ public class Music {
 
     private String sha;
 
-    private int shardingSize;
+    private Integer shardingSize;
 
     private String videoId;
 

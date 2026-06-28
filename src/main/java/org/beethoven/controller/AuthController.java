@@ -35,21 +35,11 @@ public class AuthController {
         return ApiResult.ok(oAuth2Info);
     }
 
-    @RequestMapping("oauth2/login")
+    @RequestMapping(value = "oauth2/login", method = RequestMethod.POST)
     public ApiResult<AccountVo> oauth2Login(@RequestBody @Valid OAuth2Login oauth2Login) throws JsonProcessingException {
         AccountVo accountVo = authService.oauth2Login(oauth2Login);
 
         return ApiResult.ok(accountVo);
-    }
-
-    @RequestMapping(value = "oauth/github", method = RequestMethod.GET)
-    public void oauthGithub(Object object) {
-        System.out.println(object);
-    }
-
-    @RequestMapping(value = "oauth/github/hook", method = RequestMethod.POST)
-    public void githubHook(@RequestBody Object object) {
-        System.out.println("event:" + object);
     }
 
     @Permission

@@ -108,11 +108,13 @@ public class MusicService {
         }
 
         try(InputStream musicInputStream = musicFile.getInputStream();
-            InputStream coverInputStream = coverFile.getInputStream();
-            FileOutputStream outputStream = new FileOutputStream(fileName);
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
-            while ((i = musicInputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, i);
+            InputStream coverInputStream = coverFile.getInputStream()) {
+            // 先将上传文件写入临时文件
+            try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+                while ((i = musicInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, i);
+                }
+                outputStream.flush();
             }
             int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
             if (duration <= 0) {
@@ -143,15 +145,24 @@ public class MusicService {
             music.setMusicFileId(musicFileInfo.getId());
             music.setCoverFileId(coverFileInfo.getId());
 
-            StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
-            if (uploadMusicResponse.isOk) {
-                musicFileInfo.setHash(uploadMusicResponse.hash);
+            // 文件写入完成后，再打开流上传到存储
+            try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
+                StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
+                if (uploadMusicResponse.isOk()) {
+                    musicFileInfo.setHash(uploadMusicResponse.getHash());
+                } else {
+                    log.error("upload music file failed: {}", ossMusicName);
+                    throw new BeethovenException("Upload music file failed!");
+                }
             }
             fileInfoMapper.updateById(musicFileInfo);
 
             StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
-            if (uploadCoverResponse.isOk) {
-                coverFileInfo.setHash(uploadCoverResponse.hash);
+            if (uploadCoverResponse.isOk()) {
+                coverFileInfo.setHash(uploadCoverResponse.getHash());
+            } else {
+                log.error("upload cover file failed: {}", ossCoverName);
+                throw new BeethovenException("Upload cover file failed!");
             }
             fileInfoMapper.updateById(coverFileInfo);
             musicMapper.updateById(music);
@@ -282,12 +293,15 @@ public class MusicService {
             return ApiResult.fail("Music is not exist!");
         }
 
+        // 先查询文件信息，再删除数据库记录，最后清理存储文件
+        List<String> fileIds = List.of(music.getMusicFileId(), music.getCoverFileId());
+        List<FileInfo> fileInfoList = fileInfoMapper.selectBatchIds(fileIds);
+
         musicMapper.deleteById(musicId);
         musicPlaylistMapper.delete(
                 new LambdaQueryWrapper<MusicPlaylist>().eq(MusicPlaylist::getMusicId, musicId)
         );
-        fileInfoMapper.deleteByIds(List.of(music.getMusicFileId(), music.getCoverFileId()));
-        List<FileInfo> fileInfoList = fileInfoMapper.selectBatchIds(List.of(music.getMusicFileId(), music.getCoverFileId()));
+        fileInfoMapper.deleteByIds(fileIds);
         for (FileInfo fileInfo : fileInfoList) {
             storageContext.remove(fileInfo.getFilename());
         }
@@ -348,11 +362,13 @@ public class MusicService {
 
             int i;
             byte[] buffer = new byte[4096];
-            try(InputStream musicInputStream = musicFile.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(fileName);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
-                while ((i = musicInputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, i);
+            try(InputStream musicInputStream = musicFile.getInputStream()) {
+                // 先将上传文件写入临时文件
+                try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+                    while ((i = musicInputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, i);
+                    }
+                    outputStream.flush();
                 }
                 int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
                 if (duration <= 0) {
@@ -370,16 +386,24 @@ public class MusicService {
                 musicFileInfo.setStorage(storageContext.getProvider());
                 fileInfoMapper.insert(musicFileInfo);
 
-                StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
-                if (uploadMusicResponse.isOk) {
-                    musicFileInfo.setHash(uploadMusicResponse.hash);
+                // 文件写入完成后，再打开流上传到存储
+                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
+                    StorageResponse uploadMusicResponse = storageContext.upload(bufferedInputStream, ossMusicName);
+                    if (uploadMusicResponse.isOk()) {
+                        musicFileInfo.setHash(uploadMusicResponse.getHash());
+                    } else {
+                        log.error("upload music file failed: {}", ossMusicName);
+                        throw new BeethovenException("Upload music file failed!");
+                    }
                 }
                 FileInfo oldMusicFileInfo = fileInfoMapper.selectById(music.getMusicFileId());
-                storageContext.remove(oldMusicFileInfo.getFilename());
+                if (oldMusicFileInfo != null) {
+                    storageContext.remove(oldMusicFileInfo.getFilename());
+                }
                 music.setMusicFileId(musicFileInfo.getId());
                 fileInfoMapper.updateById(musicFileInfo);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new BeethovenException("Upload music file error: " + e.getMessage());
             } finally {
                 File file = new File(fileName);
                 if (file.exists()) {
@@ -410,16 +434,18 @@ public class MusicService {
 
             int i;
             byte[] buffer = new byte[4096];
-            try(InputStream musicInputStream = videoFile.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(fileName);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
-                while ((i = musicInputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, i);
+            try(InputStream videoInputStream = videoFile.getInputStream()) {
+                // 先将上传文件写入临时文件
+                try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+                    while ((i = videoInputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, i);
+                    }
+                    outputStream.flush();
                 }
                 int duration = (int) BeethovenLib.INSTANCE.get_duration(fileName);
                 if (duration <= 0) {
                     log.error("parse video info error, file name: {}", videoFile.getOriginalFilename());
-                    throw new MediaException("parse music info error!");
+                    throw new MediaException("parse video info error!");
                 }
 
                 FileInfo videoFileInfo = new FileInfo();
@@ -433,7 +459,9 @@ public class MusicService {
 
                 if (video.getVideoFileId() != null) {
                     FileInfo oldVideoFileInfo = fileInfoMapper.selectById(video.getVideoFileId());
-                    storageContext.remove(oldVideoFileInfo.getFilename());
+                    if (oldVideoFileInfo != null) {
+                        storageContext.remove(oldVideoFileInfo.getFilename());
+                    }
                 }
 
                 video.setDuration(duration);
@@ -443,14 +471,20 @@ public class MusicService {
                 else
                     videoMapper.updateById(video);
 
-                StorageResponse uploadVideoResponse = storageContext.upload(bufferedInputStream, ossVideoName);
-                if (uploadVideoResponse.isOk) {
-                    videoFileInfo.setHash(uploadVideoResponse.hash);
+                // 文件写入完成后，再打开流上传到存储
+                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileName))) {
+                    StorageResponse uploadVideoResponse = storageContext.upload(bufferedInputStream, ossVideoName);
+                    if (uploadVideoResponse.isOk()) {
+                        videoFileInfo.setHash(uploadVideoResponse.getHash());
+                    } else {
+                        log.error("upload video file failed: {}", ossVideoName);
+                        throw new BeethovenException("Upload video file failed!");
+                    }
                 }
                 fileInfoMapper.updateById(videoFileInfo);
                 music.setVideoId(video.getId());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new BeethovenException("Upload video file error: " + e.getMessage());
             } finally {
                 File file = new File(fileName);
                 if (file.exists()) {
@@ -472,8 +506,8 @@ public class MusicService {
                 fileInfoMapper.insert(coverFileInfo);
 
                 StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
-                if (uploadCoverResponse.isOk) {
-                    coverFileInfo.setHash(uploadCoverResponse.hash);
+                if (uploadCoverResponse.isOk()) {
+                    coverFileInfo.setHash(uploadCoverResponse.getHash());
                 }
                 fileInfoMapper.updateById(coverFileInfo);
                 FileInfo oldCoverFileInfo = fileInfoMapper.selectById(music.getCoverFileId());

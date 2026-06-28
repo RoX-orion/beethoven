@@ -28,7 +28,7 @@ public class Playlist {
 
     private Integer musicCount;
 
-    private boolean accessible;
+    private Boolean accessible;
 
     private Integer sequence;
 

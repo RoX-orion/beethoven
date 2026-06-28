@@ -1,14 +1,15 @@
 package org.beethoven.lib.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.entity.ApiResult;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -25,6 +26,7 @@ import java.io.IOException;
  * @date: 2025-02-15
  */
 
+@Slf4j
 @Component
 public class PermissionHandler implements HandlerInterceptor {
 
@@ -35,7 +37,7 @@ public class PermissionHandler implements HandlerInterceptor {
     private StringRedisTemplate stringRedisTemplate;
 
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
+    public boolean preHandle(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Object handler) {
         if (handler instanceof HandlerMethod handlerMethod) {
             Permission permission = handlerMethod.getMethodAnnotation(Permission.class);
             if (permission != null) {
@@ -58,10 +60,12 @@ public class PermissionHandler implements HandlerInterceptor {
 
     private void write(HttpServletResponse response, ApiResult<String> apiResult) {
         try {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
             ServletOutputStream outputStream = response.getOutputStream();
             outputStream.println(mapper.writeValueAsString(apiResult));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("write response error", e);
         }
     }
 }

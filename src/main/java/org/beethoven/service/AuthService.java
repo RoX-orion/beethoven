@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.exception.AuthenticationException;
@@ -14,7 +15,6 @@ import org.beethoven.mapper.ConfigMapper;
 import org.beethoven.pojo.OAuth2Info;
 import org.beethoven.pojo.dto.OAuth2Login;
 import org.beethoven.pojo.entity.Account;
-import org.beethoven.pojo.entity.Config;
 import org.beethoven.pojo.enums.UserType;
 import org.beethoven.pojo.vo.AccountVo;
 import org.beethoven.util.Helpers;
@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * @date: 2024-10-28
  */
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -71,6 +72,9 @@ public class AuthService {
     @Value("${oauth2.github.redirect-uri}")
     private String redirectUri;
 
+    @Value("${oauth2.github.secret}")
+    private String secret;
+
     public OAuth2Info getOAuth2Info(UserType userType) {
         OAuth2Info oauth2Info = new OAuth2Info();
         if (UserType.GITHUB == userType) {
@@ -87,13 +91,12 @@ public class AuthService {
         AccountVo accountVo = new AccountVo();
         if (oauth2Login.getType() == UserType.GITHUB) {
             account.setUserType(UserType.GITHUB);
-            Config githubClientSecret = configMapper.selectOne(new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.PREFIX.GITHUB_CLIENT_SECRET));
-            if (githubClientSecret == null || !StringUtils.hasText(githubClientSecret.getConfigValue()) || !StringUtils.hasText(clientId)) {
+            if (!StringUtils.hasText(secret) || !StringUtils.hasText(clientId)) {
                 throw new AuthenticationException("Load login info error!");
             }
             RequestBody accessTokenRequestBody = new FormBody.Builder()
                     .add("client_id", clientId)
-                    .add("client_secret", githubClientSecret.getConfigValue())
+                    .add("client_secret", secret)
                     .add("code", oauth2Login.getCode())
                     .build();
             Request accessTokenRequest = new Request.Builder()
@@ -104,6 +107,9 @@ public class AuthService {
             try (Response accessTokenResponse = httpClient.newCall(accessTokenRequest).execute()) {
                 if (accessTokenResponse.isSuccessful()) {
                     ResponseBody body = accessTokenResponse.body();
+                    if (body == null) {
+                        throw new AuthenticationException("Get access token error: empty response body!");
+                    }
                     Map<String, String> accessTokenResponseBody = Helpers.getBodyAsMap(body.string());
                     accessToken = accessTokenResponseBody.get("access_token");
                     if (!StringUtils.hasText(accessToken)) {
@@ -113,7 +119,7 @@ public class AuthService {
                     throw new AuthenticationException("Get access token error!");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("fetch access token error", e);
                 throw new AuthenticationException("Fetch access token error!");
             }
 
@@ -124,7 +130,11 @@ public class AuthService {
                     .build();
             try(Response userInfoResponse = httpClient.newCall(userInfoRequest).execute()) {
                 if (userInfoResponse.isSuccessful()) {
-                    Map<String, String> userInfoBody = mapper.readValue(userInfoResponse.body().string(), new TypeReference<>() {
+                    ResponseBody body = userInfoResponse.body();
+                    if (body == null) {
+                        throw new AuthenticationException("Get user info error: empty response body!");
+                    }
+                    Map<String, String> userInfoBody = mapper.readValue(body.string(), new TypeReference<>() {
                     });
                     account.setUsername(userInfoBody.get("name"));
                     account.setEmail(userInfoBody.get("email"));
@@ -133,7 +143,7 @@ public class AuthService {
                     throw new AuthenticationException("Get user info error!");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("fetch user info error", e);
                 throw new AuthenticationException("Fetch user info error!");
             }
 
@@ -145,7 +155,11 @@ public class AuthService {
                         .build();
                 try(Response emailResponse = httpClient.newCall(emailRequest).execute()) {
                     if (emailResponse.isSuccessful()) {
-                        List<Map<String, String>> emailList = mapper.readValue(emailResponse.body().string(), new TypeReference<>() {
+                        ResponseBody body = emailResponse.body();
+                        if (body == null) {
+                            throw new AuthenticationException("Can't fetch your email address: empty response body!");
+                        }
+                        List<Map<String, String>> emailList = mapper.readValue(body.string(), new TypeReference<>() {
                         });
                         for (Map<String, String> emailInfo : emailList) {
                             String primary = emailInfo.get("primary");
@@ -156,7 +170,7 @@ public class AuthService {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("fetch email address error", e);
                     throw new AuthenticationException("Can't fetch your email address!");
                 }
             }

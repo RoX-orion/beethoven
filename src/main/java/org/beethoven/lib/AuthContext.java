@@ -4,10 +4,9 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.Objects;
 
 /**
  * Copyright (c) 2025 Andre Lina. All rights reserved.
@@ -24,8 +23,15 @@ public class AuthContext {
     private StringRedisTemplate stringRedisTemplate;
 
     public String getUserId() {
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return null;
+        }
+        HttpServletRequest request = attributes.getRequest();
         String token = request.getHeader("Authorization");
+        if (!StringUtils.hasText(token)) {
+            return null;
+        }
         return stringRedisTemplate.opsForValue().get(Constant.PREFIX.USER_ID + token);
     }
 }

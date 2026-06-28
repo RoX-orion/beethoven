@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class StorageResponse {
 
-    public boolean isOk;
+    private boolean isOk;
 
-    public String hash;
+    private String hash;
 }
