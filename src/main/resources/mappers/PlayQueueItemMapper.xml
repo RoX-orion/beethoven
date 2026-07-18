@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.beethoven.mapper.PlayQueueItemMapper">
+    <resultMap id="PlayQueueItemVoMap" type="org.beethoven.pojo.vo.PlayQueueItemVo">
+        <id property="queueItemId" column="queue_item_id"/>
+        <result property="musicId" column="music_id"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="sourceId" column="source_id"/>
+        <result property="sortNo" column="sort_no"/>
+        <association property="music" javaType="org.beethoven.pojo.vo.MusicInfo">
+            <id property="id" column="music_id"/>
+            <result property="name" column="name"/>
+            <result property="singer" column="singer"/>
+            <result property="duration" column="duration"/>
+            <result property="album" column="album"/>
+            <result property="size" column="size"/>
+            <result property="mime" column="mime"/>
+            <result property="link" column="link"/>
+            <result property="cover" column="cover"/>
+            <result property="videoId" column="video_id"/>
+        </association>
+    </resultMap>
+
+    <select id="getQueueItems" resultMap="PlayQueueItemVoMap">
+        select pqi.id          as queue_item_id,
+               pqi.music_id    as music_id,
+               pqi.source_type as source_type,
+               pqi.source_id   as source_id,
+               pqi.sort_no     as sort_no,
+               m.name,
+               m.singer,
+               m.duration,
+               m.album,
+               m.video_id,
+               fim.size,
+               fim.mime,
+               fim.filename    as link,
+               fic.filename    as cover
+        from play_queue_item pqi
+                 inner join music m on pqi.music_id = m.id
+                 left join file_info fim on m.music_file_id = fim.id
+                 left join file_info fic on m.cover_file_id = fic.id
+        where pqi.queue_id = #{queueId}
+        order by pqi.sort_no, pqi.create_time
+    </select>
+
+    <select id="getMaxSortNo" resultType="java.lang.Integer">
+        select max(sort_no)
+        from play_queue_item
+        where queue_id = #{queueId}
+    </select>
+
+    <update id="shiftSortNoFrom">
+        update play_queue_item
+        set sort_no = sort_no + 1
+        where queue_id = #{queueId}
+          and sort_no >= #{sortNo}
+    </update>
+
+    <update id="decrementSortNoAfter">
+        update play_queue_item
+        set sort_no = sort_no - 1
+        where queue_id = #{queueId}
+          and sort_no > #{sortNo}
+    </update>
+</mapper>

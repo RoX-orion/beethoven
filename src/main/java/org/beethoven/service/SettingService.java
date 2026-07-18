@@ -7,6 +7,7 @@ import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.mapper.SettingMapper;
 import org.beethoven.pojo.entity.Setting;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -30,7 +31,7 @@ public class SettingService {
     }
 
     public void updateSetting(Setting setting) {
-        if (setting.getUserId() == null) return;
+        if (!StringUtils.hasText(setting.getUserId())) return;
         settingMapper.insertOrUpdate(setting);
     }
 
