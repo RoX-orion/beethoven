@@ -1,72 +1,111 @@
 package org.andre.beethoven.service;
 
-import jakarta.annotation.Resource;
-import okhttp3.OkHttpClient;
-import org.beethoven.BeethovenApplication;
+import org.beethoven.lib.exception.AuthenticationException;
+import org.beethoven.service.GitHubOAuthClient;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
- * Copyright (c) 2024 Andre Lina. All rights reserved.
- *
- * @description:
- * @author: Andre Lina
- * @date: 2024-12-15
+ * Tests for the GitHub REST client without using the network or application infrastructure.
  */
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = BeethovenApplication.class)
 public class AuthTest {
 
-    @Resource
-    private RestTemplate restTemplate;
+    @Test
+    public void exchangeAccessTokenUsesJsonAndFormHeaders() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://github.com/login/oauth/access_token"))
+                .andExpect(method(POST))
+                .andExpect(header(HttpHeaders.USER_AGENT, "Beethoven-Music"))
+                .andExpect(header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(content().formData(formData("client_id", "client", "client_secret", "secret", "code", "code")))
+                .andRespond(withSuccess("{\"access_token\":\"token\"}", MediaType.APPLICATION_JSON));
 
-    @Resource
-    private OkHttpClient httpClient;
+        GitHubOAuthClient client = new GitHubOAuthClient(builder);
+
+        assertEquals("token", client.exchangeAccessToken("client", "secret", "code"));
+        server.verify();
+    }
 
     @Test
-    public void githubLogin() {
-        /*
-        {"clientId":"Iv23liwRggbRlFoMX4L9","redirectUri":"http://localhost:12345","state":"516708"}
-         */
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("client_id", "Iv23liwRggbRlFoMX4L9");
-        requestBody.put("client_secret", "5dcba8cc1d8e218006bd9177c166170ea3d6e95c");
-        requestBody.put("code", "635768b9bec407f2840c");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("User-Agent", "PostmanRuntime-ApipostRuntime/1.1.0");
-        httpHeaders.add("Host", "github.com");
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, httpHeaders);
-        ParameterizedTypeReference<HashMap<String, String>> typeRef = new ParameterizedTypeReference<>() {};
-        ResponseEntity<Object> response = restTemplate.exchange("https://github.com/login/oauth/access_token", HttpMethod.POST, request, Object.class);
-        System.out.println(response);
+    public void rejectsAccessTokenResponseWithoutToken() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://github.com/login/oauth/access_token"))
+                .andRespond(withSuccess("{\"scope\":\"read:user\"}", MediaType.APPLICATION_JSON));
 
-//        RequestBody formBody = new FormBody.Builder()
-//                .add("client_id", "Iv23liwRggbRlFoMX4L9")
-//                .add("client_secret", "5dcba8cc1d8e218006bd9177c166170ea3d6e95c")
-//                .add("code", "cad38dc87da6472eac74")
-//                .build();
-//        Request request = new Request.Builder()
-//                .url("https://github.com/login/oauth/access_token")
-////                .headers(headers)
-//                .post(formBody)
-//                .build();
-//        try (Response response = httpClient.newCall(request).execute()) {
-//            ResponseBody body = response.body();
-//            System.out.println(body);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        GitHubOAuthClient client = new GitHubOAuthClient(builder);
+
+        assertThrows(AuthenticationException.class,
+                () -> client.exchangeAccessToken("client", "secret", "code"));
+        server.verify();
+    }
+
+    @Test
+    public void getUserAndEmailsDecodeGitHubPayloads() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://api.github.com/user"))
+                .andExpect(method(GET))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(header(HttpHeaders.USER_AGENT, "Beethoven-Music"))
+                .andRespond(withSuccess(
+                        "{\"name\":\"Andre\",\"email\":\"user@example.com\",\"avatar_url\":\"https://avatar\"}",
+                        MediaType.APPLICATION_JSON));
+        server.expect(requestTo("https://api.github.com/user/emails"))
+                .andExpect(method(GET))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andRespond(withSuccess(
+                        "[{\"email\":\"user@example.com\",\"primary\":true}]",
+                        MediaType.APPLICATION_JSON));
+
+        GitHubOAuthClient client = new GitHubOAuthClient(builder);
+
+        GitHubOAuthClient.GitHubUser user = client.getUser("token");
+        List<GitHubOAuthClient.GitHubEmail> emails = client.getEmails("token");
+
+        assertEquals("Andre", user.name());
+        assertEquals("https://avatar", user.avatarUrl());
+        assertEquals(1, emails.size());
+        assertEquals("user@example.com", emails.get(0).email());
+        assertTrue(emails.get(0).primary());
+        server.verify();
+    }
+
+    @Test
+    public void mapsGitHubHttpErrorsToAuthenticationException() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://github.com/login/oauth/access_token"))
+                .andRespond(withStatus(BAD_REQUEST));
+
+        GitHubOAuthClient client = new GitHubOAuthClient(builder);
+
+        assertThrows(AuthenticationException.class,
+                () -> client.exchangeAccessToken("client", "secret", "code"));
+        server.verify();
+    }
+
+    private static MultiValueMap<String, String> formData(String... values) {
+        LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        for (int i = 0; i < values.length; i += 2) {
+            form.add(values[i], values[i + 1]);
+        }
+        return form;
     }
 }

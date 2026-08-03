@@ -15,7 +15,6 @@ import org.beethoven.lib.exception.StorageException;
 @Getter
 public enum StorageProvider implements IEnum<String> {
 
-    QINIU("七牛云"),
     S3("S3");
 
     private final String name;
@@ -26,7 +25,7 @@ public enum StorageProvider implements IEnum<String> {
 
     public static StorageProvider getProvider(String provider) {
         for (StorageProvider value : StorageProvider.values()) {
-            if (value.name.equals(provider)) {
+            if (value.name.equals(provider) || value.name().equalsIgnoreCase(provider)) {
                 return value;
             }
         }

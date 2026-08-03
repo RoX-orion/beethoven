@@ -16,6 +16,10 @@ public interface Storage {
 
     StorageResponse upload(InputStream inputStream, String fileName);
 
+    default StorageResponse upload(InputStream inputStream, String fileName, long contentLength) {
+        return upload(inputStream, fileName);
+    }
+
     InputStream download(String fileName, Long start, Long length);
 
     String getURL(String fileName);

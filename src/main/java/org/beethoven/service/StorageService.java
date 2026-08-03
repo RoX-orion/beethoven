@@ -9,6 +9,7 @@ import org.beethoven.pojo.dto.StorageDTO;
 import org.beethoven.pojo.entity.StorageInfo;
 import org.beethoven.pojo.enums.StorageProvider;
 import org.beethoven.pojo.vo.CommonVo;
+import org.beethoven.pojo.vo.StorageInfoVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +37,20 @@ public class StorageService {
                 .toList();
     }
 
-    public StorageInfo getStorageInfo(String provider) {
-        return storageMapper.selectOne(
-                new LambdaQueryWrapper<StorageInfo>().eq(StorageInfo::getProvider, provider)
+    public StorageInfoVo getStorageInfo(String provider) {
+        StorageProvider storageProvider = StorageProvider.getProvider(provider);
+        StorageInfo storageInfo = storageMapper.selectOne(
+                new LambdaQueryWrapper<StorageInfo>().eq(StorageInfo::getProvider, storageProvider)
         );
+        if (storageInfo == null) {
+            return null;
+        }
+
+        StorageInfoVo storageInfoVo = new StorageInfoVo();
+        storageInfoVo.setProvider(storageInfo.getProvider());
+        storageInfoVo.setBucket(storageInfo.getBucket());
+        storageInfoVo.setEndpoint(storageInfo.getEndpoint());
+        return storageInfoVo;
     }
 
     public void configureStorage(StorageDTO storageDTO) {

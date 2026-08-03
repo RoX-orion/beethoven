@@ -13,4 +13,8 @@ public class BeethovenException extends RuntimeException {
     public BeethovenException(String message) {
         super(message);
     }
+
+    public BeethovenException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

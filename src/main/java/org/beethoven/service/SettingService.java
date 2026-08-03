@@ -31,7 +31,12 @@ public class SettingService {
     }
 
     public void updateSetting(Setting setting) {
-        if (!StringUtils.hasText(setting.getUserId())) return;
+        String userId = authContext.getUserId();
+        if (!StringUtils.hasText(userId)) {
+            throw new BeethovenException("User id can't be null when update setting!");
+        }
+        // The identity comes from the authenticated token, never from the request body.
+        setting.setUserId(userId);
         settingMapper.insertOrUpdate(setting);
     }
 

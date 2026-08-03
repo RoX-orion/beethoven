@@ -130,6 +130,7 @@ public class QueueService {
         String userId = requireUserId();
         PlayQueue queue = requireQueue(userId);
         List<PlayQueueItemVo> currentItems = playQueueItemMapper.getQueueItems(queue.getId());
+        String currentQueueItemId = currentQueueItemId(queue, currentItems);
         if (currentItems.size() != reorderQueueDTO.getQueueItemIds().size()) {
             throw new BeethovenException("播放队列项不匹配");
         }
@@ -150,7 +151,7 @@ public class QueueService {
             playQueueItemMapper.updateById(item);
         }
 
-        syncCurrentIndex(queue);
+        syncCurrentIndex(queue, currentQueueItemId);
         touchQueue(queue);
         return toVo(queue);
     }
@@ -163,6 +164,7 @@ public class QueueService {
         if (items.isEmpty()) {
             queue.setCurrentIndex(-1);
             queue.setCurrentMusicId(null);
+            queue.setCurrentTime(0);
         } else if (updateCurrentQueueDTO.getCurrentIndex() != null) {
             if (updateCurrentQueueDTO.getCurrentIndex() < 0 || updateCurrentQueueDTO.getCurrentIndex() >= items.size()) {
                 throw new BeethovenException("当前播放索引不合法");
@@ -215,6 +217,7 @@ public class QueueService {
         if (items.isEmpty()) {
             queue.setCurrentIndex(-1);
             queue.setCurrentMusicId(null);
+            queue.setCurrentTime(0);
         } else if (removedSortNo < previousIndex) {
             queue.setCurrentIndex(previousIndex - 1);
             queue.setCurrentMusicId(items.get(queue.getCurrentIndex()).getMusicId());
@@ -222,6 +225,7 @@ public class QueueService {
             int nextIndex = Math.min(previousIndex, items.size() - 1);
             queue.setCurrentIndex(nextIndex);
             queue.setCurrentMusicId(items.get(nextIndex).getMusicId());
+            queue.setCurrentTime(0);
         }
 
         touchQueue(queue);
@@ -344,15 +348,36 @@ public class QueueService {
         return musicMapper.exists(new LambdaQueryWrapper<Music>().eq(Music::getId, musicId));
     }
 
-    private void syncCurrentIndex(PlayQueue queue) {
-        if (!StringUtils.hasText(queue.getCurrentMusicId())) {
-            return;
-        }
+    private void syncCurrentIndex(PlayQueue queue, String currentQueueItemId) {
         List<PlayQueueItemVo> items = playQueueItemMapper.getQueueItems(queue.getId());
-        int index = indexOfMusic(items, queue.getCurrentMusicId());
+        int index = indexOfQueueItem(items, currentQueueItemId);
+        if (index < 0 && StringUtils.hasText(queue.getCurrentMusicId())) {
+            index = indexOfMusic(items, queue.getCurrentMusicId());
+        }
         if (index >= 0) {
             queue.setCurrentIndex(index);
+            queue.setCurrentMusicId(items.get(index).getMusicId());
         }
+    }
+
+    private String currentQueueItemId(PlayQueue queue, List<PlayQueueItemVo> items) {
+        Integer currentIndex = queue.getCurrentIndex();
+        if (currentIndex == null || currentIndex < 0 || currentIndex >= items.size()) {
+            return null;
+        }
+        return items.get(currentIndex).getQueueItemId();
+    }
+
+    private int indexOfQueueItem(List<PlayQueueItemVo> items, String queueItemId) {
+        if (!StringUtils.hasText(queueItemId)) {
+            return -1;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if (Objects.equals(items.get(i).getQueueItemId(), queueItemId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private int indexOfMusic(List<PlayQueueItemVo> items, String musicId) {

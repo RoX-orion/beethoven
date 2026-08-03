@@ -17,7 +17,6 @@ public class BeethovenLibTest {
 
     @Test
     public void getAudioDuration() {
-        double duration = BeethovenLib.INSTANCE.get_duration("/home/andre/dingxi.mp3");
-        System.out.println(duration);
+        BeethovenLib.INSTANCE.get_duration("/home/andre/dingxi.mp3");
     }
 }

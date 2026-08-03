@@ -1,17 +1,12 @@
 package org.beethoven.lib.store;
 
-import jakarta.annotation.Resource;
 import lombok.Getter;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.pojo.enums.StorageProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -24,26 +19,20 @@ import java.util.Map;
 @Component
 public class StorageContext {
 
-    @Resource
-    private ApplicationContext applicationContext;
-
-    private Storage storage;
+    private final Storage storage;
 
     @Getter
     private StorageProvider provider;
 
-    private final Map<StorageProvider, Storage> ossMap = new HashMap<>();
-
-    @Autowired
-    public StorageContext(final Qiniu qiniu,
-                          final S3 s3) {
-        ossMap.put(StorageProvider.QINIU, qiniu);
-        ossMap.put(StorageProvider.S3, s3);
+    public StorageContext(final S3 s3) {
+        this.storage = s3;
     }
 
     public void refresh(StorageProvider provider) {
+        if (provider != StorageProvider.S3) {
+            throw new BeethovenException("Unsupported storage provider: " + provider);
+        }
         this.provider = provider;
-        storage = ossMap.get(provider) != null ? ossMap.get(provider) : applicationContext.getBean(S3.class);
         init();
     }
 
@@ -53,6 +42,10 @@ public class StorageContext {
 
     public StorageResponse upload(InputStream inputStream, String fileName) {
         return storage.upload(inputStream, fileName);
+    }
+
+    public StorageResponse upload(InputStream inputStream, String fileName, long contentLength) {
+        return storage.upload(inputStream, fileName, contentLength);
     }
 
     public InputStream download(String fileName, Long start, Long end) {

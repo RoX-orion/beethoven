@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.AuthContext;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.exception.AuthenticationException;
+import org.beethoven.lib.exception.BeethovenException;
 import org.beethoven.lib.store.StorageContext;
 import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.*;
@@ -21,6 +23,8 @@ import org.beethoven.util.Helpers;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +42,7 @@ import java.util.Objects;
  */
 
 @Service
+@Slf4j
 public class PlaylistService {
 
     @Resource
@@ -89,6 +94,15 @@ public class PlaylistService {
             }
             String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
             try(InputStream coverInputStream = coverFile.getInputStream()) {
+                StorageResponse uploadCoverResponse = storageContext.upload(
+                        coverInputStream,
+                        ossCoverName,
+                        coverFile.getSize()
+                );
+                if (uploadCoverResponse == null || !uploadCoverResponse.isOk()) {
+                    throw new BeethovenException("Upload cover file failed!");
+                }
+
                 FileInfo coverFileInfo = new FileInfo();
                 coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
                 coverFileInfo.setFilename(ossCoverName);
@@ -96,13 +110,8 @@ public class PlaylistService {
                 coverFileInfo.setMime(coverMime);
                 coverFileInfo.setChecksum("");
                 coverFileInfo.setStorage(storageContext.getProvider());
+                coverFileInfo.setHash(uploadCoverResponse.getHash());
                 fileInfoMapper.insert(coverFileInfo);
-
-                StorageResponse uploadCoverResponse = storageContext.upload(coverInputStream, ossCoverName);
-                if (uploadCoverResponse.isOk()) {
-                    coverFileInfo.setHash(uploadCoverResponse.getHash());
-                }
-                fileInfoMapper.updateById(coverFileInfo);
                 playlist.setCoverFileId(coverFileInfo.getId());
             }
         }
@@ -119,6 +128,10 @@ public class PlaylistService {
 
     @Transactional
     public ApiResult<String> addMusicToPlaylist(@Valid MusicPlaylistDTO musicPlaylistDTO) {
+        String userId = authContext.getUserId();
+        if (!StringUtils.hasText(userId)) {
+            return ApiResult.expired(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
         if (!musicMapper.exists(new LambdaQueryWrapper<Music>().eq(Music::getId, musicPlaylistDTO.getMusicId()))) {
             return ApiResult.fail("歌曲不存在！");
         }
@@ -128,6 +141,9 @@ public class PlaylistService {
             Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistId));
             if (Objects.isNull(playlist)) {
                 return ApiResult.fail("歌单不存在！");
+            }
+            if (!Objects.equals(playlist.getCreator(), userId)) {
+                return ApiResult.fail(HttpStatus.FORBIDDEN.value(), "不能操作不属于自己的歌单");
             }
             if (musicPlaylistMapper.exists(
                     new LambdaQueryWrapper<MusicPlaylist>()
@@ -149,51 +165,64 @@ public class PlaylistService {
     }
 
     public List<MusicInfo> getPlaylistMusic(String playlistId, Integer page, Integer size) {
+        requireReadablePlaylist(playlistId);
         PageParam pageParam = Helpers.buildPageParam(page, size);
 
         return playlistMapper.getPlaylistMusic(playlistId, pageParam);
     }
 
     public PlaylistVo getPlaylistInfo(String playlistId) {
+        requireReadablePlaylist(playlistId);
         return playlistMapper.getPlaylistInfo(playlistId);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult<Void> updatePlaylist(PlaylistDTO playlistDTO) {
+        String userId = authContext.getUserId();
+        if (!StringUtils.hasText(userId)) {
+            return ApiResult.expired(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
         Playlist playlist = playlistMapper.selectOne(new LambdaQueryWrapper<Playlist>().eq(Playlist::getId, playlistDTO.getId()));
         if (playlist == null) {
             return ApiResult.fail("歌单不存在");
         }
+        if (!Objects.equals(playlist.getCreator(), userId)) {
+            return ApiResult.fail(HttpStatus.FORBIDDEN.value(), "不能操作不属于自己的歌单");
+        }
 
         MultipartFile coverFile = playlistDTO.getCoverFile();
+        FileInfo oldCoverFileInfo = null;
         if (coverFile != null) {
             String coverMime = coverFile.getContentType();
             if (!FileUtil.checkMime(coverMime, FileUtil.FileType.IMAGE)) {
                 return ApiResult.fail(String.format("cover file content type[%s] not support!", coverMime));
             }
             String ossCoverName = Constant.COVER_DIR + Helpers.buildOssFileName(coverFile.getOriginalFilename());
-            FileInfo coverFileInfo = fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>().eq(FileInfo::getId, playlist.getCoverFileId()));
+            oldCoverFileInfo = playlist.getCoverFileId() == null ? null : fileInfoMapper.selectById(playlist.getCoverFileId());
             try {
-                if (coverFileInfo != null) {
-                    storageContext.remove(coverFileInfo.getFilename());
-                    fileInfoMapper.deleteById(coverFileInfo.getId());
-                }
-                coverFileInfo = new FileInfo();
+                FileInfo coverFileInfo = new FileInfo();
                 coverFileInfo.setOriginalFilename(coverFile.getOriginalFilename());
                 coverFileInfo.setFilename(ossCoverName);
                 coverFileInfo.setSize(coverFile.getSize());
                 coverFileInfo.setMime(coverMime);
                 coverFileInfo.setChecksum("");
                 coverFileInfo.setStorage(storageContext.getProvider());
-                fileInfoMapper.insert(coverFileInfo);
-
-                StorageResponse uploadCoverResponse = storageContext.upload(coverFile.getInputStream(), ossCoverName);
-                if (uploadCoverResponse.isOk()) {
+                try (InputStream coverInputStream = coverFile.getInputStream()) {
+                    StorageResponse uploadCoverResponse = storageContext.upload(
+                            coverInputStream,
+                            ossCoverName,
+                            coverFile.getSize()
+                    );
+                    if (uploadCoverResponse == null || !uploadCoverResponse.isOk()) {
+                        throw new BeethovenException("Upload cover file failed!");
+                    }
                     coverFileInfo.setHash(uploadCoverResponse.getHash());
                 }
-                fileInfoMapper.updateById(coverFileInfo);
+                // Keep the old object until the new object has been uploaded and referenced.
+                fileInfoMapper.insert(coverFileInfo);
                 playlist.setCoverFileId(coverFileInfo.getId());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new BeethovenException("Upload cover file error: " + e.getMessage());
             }
         }
         playlist.setId(playlistDTO.getId());
@@ -201,6 +230,10 @@ public class PlaylistService {
         playlist.setAccessible(playlistDTO.getAccessible());
         playlist.setIntroduction(playlistDTO.getIntroduction());
         playlistMapper.updateById(playlist);
+
+        if (coverFile != null) {
+            removeReplacedFileAfterCommit(oldCoverFileInfo);
+        }
 
         return ApiResult.ok();
     }
@@ -234,5 +267,45 @@ public class PlaylistService {
         musicPlaylistMapper.deleteById(musicPlaylist.getId());
 
         return ApiResult.ok();
+    }
+
+    private void requireReadablePlaylist(String playlistId) {
+        Playlist playlist = playlistMapper.selectById(playlistId);
+        if (playlist == null) {
+            throw new BeethovenException("歌单不存在");
+        }
+        if (Boolean.TRUE.equals(playlist.getAccessible())) {
+            return;
+        }
+        String userId = authContext.getUserId();
+        if (!Objects.equals(playlist.getCreator(), userId)) {
+            throw new BeethovenException("没有权限访问此歌单");
+        }
+    }
+
+    private void removeReplacedFileAfterCommit(FileInfo oldFileInfo) {
+        if (oldFileInfo == null) {
+            return;
+        }
+        fileInfoMapper.deleteById(oldFileInfo.getId());
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    removeStorageObject(oldFileInfo);
+                }
+            });
+            return;
+        }
+        removeStorageObject(oldFileInfo);
+    }
+
+    private void removeStorageObject(FileInfo oldFileInfo) {
+        try {
+            storageContext.remove(oldFileInfo.getFilename());
+        } catch (RuntimeException e) {
+            // The new reference is already persisted; the old object can be retried by a cleanup task.
+            log.warn("Failed to remove replaced playlist cover {}", oldFileInfo.getFilename(), e);
+        }
     }
 }

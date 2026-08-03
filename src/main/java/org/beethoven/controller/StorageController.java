@@ -5,8 +5,8 @@ import jakarta.validation.Valid;
 import org.beethoven.lib.annotation.Permission;
 import org.beethoven.pojo.dto.StorageDTO;
 import org.beethoven.pojo.entity.ApiResult;
-import org.beethoven.pojo.entity.StorageInfo;
 import org.beethoven.pojo.vo.CommonVo;
+import org.beethoven.pojo.vo.StorageInfoVo;
 import org.beethoven.service.StorageService;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,13 +35,14 @@ public class StorageController {
     }
 
     @RequestMapping(value = "info/{provider}", method = RequestMethod.GET)
-    public ApiResult<StorageInfo> getStorageInfo(@PathVariable String provider) {
-        StorageInfo storageInfo = storageService.getStorageInfo(provider);
+    @Permission
+    public ApiResult<StorageInfoVo> getStorageInfo(@PathVariable String provider) {
+        StorageInfoVo storageInfo = storageService.getStorageInfo(provider);
 
         return ApiResult.ok(storageInfo);
     }
 
-    @Permission
+    @Permission("ADMIN")
     @RequestMapping(value = "configureStorage", method = RequestMethod.POST)
     public ApiResult<Void> configureStorage(@RequestBody @Valid StorageDTO storageDTO) {
         storageService.configureStorage(storageDTO);

@@ -2,10 +2,12 @@ package org.beethoven.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.GlobalConfig;
 import org.beethoven.lib.InitGlobal;
 import org.beethoven.lib.store.StorageContext;
+import org.beethoven.lib.store.StorageResponse;
 import org.beethoven.mapper.ConfigMapper;
 import org.beethoven.pojo.entity.Config;
 import org.beethoven.pojo.vo.AppConfig;
@@ -13,9 +15,12 @@ import org.beethoven.pojo.vo.MusicConfig;
 import org.beethoven.util.Helpers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Copyright (c) 2024 Andre Lina. All rights reserved.
@@ -26,6 +31,7 @@ import java.io.IOException;
  */
 
 @Service
+@Slf4j
 public class AppService {
 
     @Resource
@@ -67,18 +73,46 @@ public class AppService {
             Config defaultMusicCoverConfig = configMapper.selectOne(new LambdaQueryWrapper<Config>().eq(Config::getConfigKey, Constant.DEFAULT_MUSIC_COVER));
             defaultMusicCoverConfig = defaultMusicCoverConfig == null ? new Config() : defaultMusicCoverConfig;
             String oldFileName = defaultMusicCoverConfig.getConfigValue();
-            defaultMusicCoverConfig.setConfigKey(Constant.DEFAULT_MUSIC_COVER);
-            defaultMusicCoverConfig.setConfigValue(fileName);
-            configMapper.insertOrUpdate(defaultMusicCoverConfig);
 
-            try {
-                storageContext.upload(defaultMusicCoverFile.getInputStream(), fileName);
-                storageContext.remove(oldFileName);
+            try (InputStream inputStream = defaultMusicCoverFile.getInputStream()) {
+                StorageResponse uploadResponse = storageContext.upload(inputStream, fileName, defaultMusicCoverFile.getSize());
+                if (uploadResponse == null || !uploadResponse.isOk()) {
+                    throw new RuntimeException("Upload default music cover failed!");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            defaultMusicCoverConfig.setConfigKey(Constant.DEFAULT_MUSIC_COVER);
+            defaultMusicCoverConfig.setConfigValue(fileName);
+            configMapper.insertOrUpdate(defaultMusicCoverConfig);
+            removeAfterCommit(oldFileName);
         }
 
         initGlobal.run(null);
+    }
+
+    private void removeAfterCommit(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return;
+        }
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    removeStorageObject(fileName);
+                }
+            });
+            return;
+        }
+        removeStorageObject(fileName);
+    }
+
+    private void removeStorageObject(String fileName) {
+        try {
+            storageContext.remove(fileName);
+        } catch (RuntimeException e) {
+            log.warn("Failed to remove replaced default music cover {}", fileName, e);
+        }
     }
 }

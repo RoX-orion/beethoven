@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -106,20 +104,6 @@ public class Helpers {
         result[1] = (byte) ((value >> 8) & 0xFF);
         result[0] = (byte) (value & 0xFF);
         return result;
-    }
-
-    public static Map<String, String> getBodyAsMap(String source) {
-        Map<String, String> body = new HashMap<>();
-        String[] split = source.split("&");
-        for (String s : split) {
-            String[] kv = s.split("=");
-            if (kv.length == 2) {
-                body.put(kv[0], kv[1]);
-            } else {
-                body.put(kv[0], null);
-            }
-        }
-        return body;
     }
 
     public static PageParam buildPageParam(Integer page, Integer size) {

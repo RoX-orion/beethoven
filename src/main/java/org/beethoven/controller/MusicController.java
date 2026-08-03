@@ -41,12 +41,10 @@ public class MusicController {
 
     @Permission
     @RequestMapping(value = "fetchMusic", method = RequestMethod.GET)
-    public ApiResult<Void> fetchMusic(HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      @RequestParam("fileName") String fileName) {
+    public void fetchMusic(HttpServletRequest request,
+                           HttpServletResponse response,
+                           @RequestParam("fileName") String fileName) {
         musicService.fetchMusic(request, response, fileName);
-
-        return ApiResult.ok();
     }
 
     @RequestMapping(value = "searchMusic", method = RequestMethod.GET)

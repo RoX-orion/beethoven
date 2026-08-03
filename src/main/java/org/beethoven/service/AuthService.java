@@ -2,21 +2,19 @@ package org.beethoven.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
 import org.beethoven.lib.Constant;
 import org.beethoven.lib.exception.AuthenticationException;
 import org.beethoven.mapper.AccountMapper;
-import org.beethoven.mapper.ConfigMapper;
 import org.beethoven.pojo.OAuth2Info;
 import org.beethoven.pojo.dto.OAuth2Login;
 import org.beethoven.pojo.entity.Account;
 import org.beethoven.pojo.enums.UserType;
 import org.beethoven.pojo.vo.AccountVo;
+import org.beethoven.service.GitHubOAuthClient.GitHubEmail;
+import org.beethoven.service.GitHubOAuthClient.GitHubUser;
 import org.beethoven.util.Helpers;
 import org.beethoven.util.RequestUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,7 +36,6 @@ import java.util.concurrent.TimeUnit;
  * @date: 2024-10-28
  */
 
-@Slf4j
 @Service
 public class AuthService {
 
@@ -49,7 +43,7 @@ public class AuthService {
     private RedisTemplate<String, String> redisTemplate;
 
     @Resource
-    private OkHttpClient httpClient;
+    private GitHubOAuthClient gitHubOAuthClient;
 
     @Resource
     private ObjectMapper mapper;
@@ -62,9 +56,6 @@ public class AuthService {
 
     @Resource
     private SettingService settingService;
-
-    @Resource
-    private ConfigMapper configMapper;
 
     @Value("${oauth2.github.client-id}")
     private String clientId;
@@ -94,84 +85,19 @@ public class AuthService {
             if (!StringUtils.hasText(secret) || !StringUtils.hasText(clientId)) {
                 throw new AuthenticationException("Load login info error!");
             }
-            RequestBody accessTokenRequestBody = new FormBody.Builder()
-                    .add("client_id", clientId)
-                    .add("client_secret", secret)
-                    .add("code", oauth2Login.getCode())
-                    .build();
-            Request accessTokenRequest = new Request.Builder()
-                    .url("https://github.com/login/oauth/access_token")
-                    .post(accessTokenRequestBody)
-                    .build();
-            String accessToken;
-            try (Response accessTokenResponse = httpClient.newCall(accessTokenRequest).execute()) {
-                if (accessTokenResponse.isSuccessful()) {
-                    ResponseBody body = accessTokenResponse.body();
-                    if (body == null) {
-                        throw new AuthenticationException("Get access token error: empty response body!");
-                    }
-                    Map<String, String> accessTokenResponseBody = Helpers.getBodyAsMap(body.string());
-                    accessToken = accessTokenResponseBody.get("access_token");
-                    if (!StringUtils.hasText(accessToken)) {
-                        throw new AuthenticationException("Get access token error!");
-                    }
-                } else {
-                    throw new AuthenticationException("Get access token error!");
-                }
-            } catch (IOException e) {
-                log.error("fetch access token error", e);
-                throw new AuthenticationException("Fetch access token error!");
-            }
+            String accessToken = gitHubOAuthClient.exchangeAccessToken(clientId, secret, oauth2Login.getCode());
 
-            Request userInfoRequest = new Request.Builder()
-                    .url("https://api.github.com/user")
-                    .header("Authorization", "Bearer " + accessToken)
-                    .get()
-                    .build();
-            try(Response userInfoResponse = httpClient.newCall(userInfoRequest).execute()) {
-                if (userInfoResponse.isSuccessful()) {
-                    ResponseBody body = userInfoResponse.body();
-                    if (body == null) {
-                        throw new AuthenticationException("Get user info error: empty response body!");
-                    }
-                    Map<String, String> userInfoBody = mapper.readValue(body.string(), new TypeReference<>() {
-                    });
-                    account.setUsername(userInfoBody.get("name"));
-                    account.setEmail(userInfoBody.get("email"));
-                    account.setAvatar(userInfoBody.get("avatar_url"));
-                } else {
-                    throw new AuthenticationException("Get user info error!");
-                }
-            } catch (IOException e) {
-                log.error("fetch user info error", e);
-                throw new AuthenticationException("Fetch user info error!");
-            }
+            GitHubUser user = gitHubOAuthClient.getUser(accessToken);
+            account.setUsername(user.name());
+            account.setEmail(user.email());
+            account.setAvatar(user.avatarUrl());
 
             if (!StringUtils.hasText(account.getEmail())) {
-                Request emailRequest = new Request.Builder()
-                        .url("https://api.github.com/user/emails")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .get()
-                        .build();
-                try(Response emailResponse = httpClient.newCall(emailRequest).execute()) {
-                    if (emailResponse.isSuccessful()) {
-                        ResponseBody body = emailResponse.body();
-                        if (body == null) {
-                            throw new AuthenticationException("Can't fetch your email address: empty response body!");
-                        }
-                        List<Map<String, String>> emailList = mapper.readValue(body.string(), new TypeReference<>() {
-                        });
-                        for (Map<String, String> emailInfo : emailList) {
-                            String primary = emailInfo.get("primary");
-                            if (StringUtils.hasText(primary) && "true".equals(primary)) {
-                                account.setEmail(emailInfo.get("email"));
-                                break;
-                            }
-                        }
+                for (GitHubEmail email : gitHubOAuthClient.getEmails(accessToken)) {
+                    if (email.primary()) {
+                        account.setEmail(email.email());
+                        break;
                     }
-                } catch (Exception e) {
-                    log.error("fetch email address error", e);
-                    throw new AuthenticationException("Can't fetch your email address!");
                 }
             }
 
